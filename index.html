@@ -294,8 +294,8 @@
     // ==== CONFIG REMOTA (opcional) ====
     // Rellena estas dos constantes para activar persistencia multi-dispositivo
     // (crea un proyecto en supabase.com, tabla "propiedades" y pega aquí tus claves)
-    const SUPABASE_URL = '';
-    const SUPABASE_ANON_KEY = '';
+    const SUPABASE_URL = "https://juottsbieeotqxcqrwdc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1b3R0c2JpZWVvdHF4Y3Fyd2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NDI2MTIsImV4cCI6MjA3NDIxODYxMn0.GkopvVnztEo6TPFL7Kg6sOl4ezlEmdgWEU3SLgujxcQ";
     let sb = null;
     try{ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } }catch(e){}
 
