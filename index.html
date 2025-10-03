@@ -426,8 +426,8 @@
 
     // ==== FORM CONTACTO (Supabase + fallback) ====
 (function(){
-  // Usamos el MISMO id que ya existe en el HTML
-  const form = $$('#form');
+  // Tu formulario real tiene id="contactForm"
+  const form = $$('#contactForm');
   if(!form) return;
 
   const okMsg  = $$('#contactOk');
@@ -441,14 +441,14 @@
     hide(okMsg); hide(errMsg);
 
     const fd = new FormData(form);
-    // MAPEAMOS nombres del HTML (español) a las variables esperadas
-    const name   = (fd.get('nombre')||'').toString().trim();
-    const email  = (fd.get('email')||'').toString().trim();
-    const phone  = (fd.get('telefono')||'').toString().trim();
-    const message= (fd.get('mensaje')||'').toString().trim();
-    const interes= (fd.get('interes')||'').toString().trim();
-    const zona   = (fd.get('zona')||'').toString().trim();
-    const presupuesto = (fd.get('presupuesto')||'').toString().trim();
+    // Lee ES o EN (lo que exista)
+    const name   = (fd.get('name')    || fd.get('nombre')   || '').toString().trim();
+    const email  = (fd.get('email')   || ''                 ).toString().trim();
+    const phone  = (fd.get('phone')   || fd.get('telefono') || '').toString().trim();
+    const message= (fd.get('message') || fd.get('mensaje')  || '').toString().trim();
+    const interes= (fd.get('interes') || '').toString().trim();
+    const zona   = (fd.get('zona')    || '').toString().trim();
+    const presupuesto = (fd.get('presupuesto') || '').toString().trim();
 
     const fullMessage = [
       message,
@@ -457,12 +457,11 @@
       presupuesto && `Presupuesto: ${presupuesto}`
     ].filter(Boolean).join('\n');
 
-    // Deshabilita botón mientras envía
+    // Botón en estado "enviando"
     const btn = form.querySelector('button[type="submit"]');
     const prev = btn?.textContent;
     if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
 
-    // Fallback a mailto si no hay Supabase o falla
     async function fallbackMailto(){
       const params = encodeURIComponent(
         `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`
@@ -473,10 +472,9 @@
 
     try {
       if(sb){
-        // OJO: la tabla se llama 'contacts' (plural)
         const { data, error } = await sb.from('contacts')
           .insert({ name, email, phone, message: fullMessage, source: 'web' })
-          .select(); // para ver el registro en consola
+          .select(); // debug en consola
 
         console.log('contacts.insert ->', { data, error });
         if(error){
