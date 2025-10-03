@@ -188,17 +188,25 @@
     <div class="wrap">
       <div class="section-head"><div><h2>Hablemos</h2><p>Cuéntanos qué buscas o publica tu propiedad.</p></div></div>
       <div class="grid" style="grid-template-columns:1.1fr .9fr">
-        <form id="form" class="svc" style="box-shadow:var(--shadow)">
-          <label class="field" style="margin-bottom:10px"><input name="nombre" placeholder="Nombre*" required></label>
-          <label class="field" style="margin-bottom:10px"><input name="email" type="email" placeholder="Email*" required></label>
-          <label class="field" style="margin-bottom:10px"><input name="telefono" placeholder="Teléfono*" required></label>
-          <label class="field" style="margin-bottom:10px"><select name="interes" required><option value="">¿Qué te interesa?</option><option>Comprar</option><option>Vender</option><option>Rentar</option></select></label>
-          <label class="field" style="margin-bottom:10px"><input name="zona" placeholder="Zona de interés / Colonia"></label>
-          <label class="field" style="margin-bottom:10px"><input name="presupuesto" placeholder="Presupuesto (MXN)"></label>
-          <label class="field" style="margin-bottom:10px"><textarea name="mensaje" rows="4" placeholder="Cuéntanos más"></textarea></label>
-          <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn primary" type="submit">Enviar</button><a class="btn ghost" href="mailto:meroci1629@gmail.com">Escribir por correo</a></div>
-          <p style="color:var(--muted);margin-top:10px">También puedes escribirnos a <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p>
-        </form>
+<form id="contactForm" class="svc" style="box-shadow:var(--shadow)">
+  <label class="field" style="margin-bottom:10px"><input name="name" placeholder="Nombre*" required></label>
+  <label class="field" style="margin-bottom:10px"><input name="email" type="email" placeholder="Email*" required></label>
+  <label class="field" style="margin-bottom:10px"><input name="phone" placeholder="Teléfono*" required></label>
+  <label class="field" style="margin-bottom:10px">
+    <select name="interes" required>
+      <option value="">¿Qué te interesa?</option>
+      <option>Comprar</option><option>Vender</option><option>Rentar</option>
+    </select>
+  </label>
+  <label class="field" style="margin-bottom:10px"><input name="zona" placeholder="Zona de interés / Colonia"></label>
+  <label class="field" style="margin-bottom:10px"><input name="presupuesto" placeholder="Presupuesto (MXN)"></label>
+  <label class="field" style="margin-bottom:10px"><textarea name="message" rows="4" placeholder="Cuéntanos más"></textarea></label>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <button class="btn primary" type="submit">Enviar</button>
+    <a class="btn ghost" href="mailto:meroci1629@gmail.com">Escribir por correo</a>
+  </div>
+  <p style="color:var(--muted);margin-top:10px">También puedes escribirnos a <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p>
+</form>
         <div class="svc" style="box-shadow:var(--shadow)"><h3 style="margin-top:0">Oficinas</h3><p style="color:var(--muted)">Atendemos CDMX y zonas conurbadas. Citas previa agenda.</p><div style="display:grid;gap:8px"><div class="hero-card"><strong>Teléfono</strong><span>55 3029 7418 • 55 5414 9125</span></div><div class="hero-card"><strong>Correo</strong><span>meroci1629@gmail.com</span></div><div class="hero-card"><strong>Horario</strong><span>Lunes a sábado · 9:00–19:00</span></div></div></div>
       </div>
     </div>
@@ -411,8 +419,85 @@
     function slug(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 
     // ==== FORM CONTACTO ====
-    $$('#form').addEventListener('submit',(e)=>{ e.preventDefault(); const data=new FormData(e.target); const params=[...data.entries()].map(([k,v])=>`*${k}*: ${v}`).join('%0A'); window.location.href=`mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`; });
+    <!-- Mensajes opcionales (puedes pegarlos justo debajo del <form>) -->
+<p id="contactOk" style="display:none;color:green;margin-top:10px">¡Gracias! Recibimos tu mensaje y te contactamos pronto.</p>
+<p id="contactErr" style="display:none;color:#b91c1c;margin-top:10px">Ocurrió un error. Intenta de nuevo o escríbenos por correo.</p>
+$$('#form').addEventListener('submit',(e)=>{ e.preventDefault(); const data=new FormData(e.target); const params=[...data.entries()].map(([k,v])=>`*${k}*: ${v}`).join('%0A'); window.location.href=`mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`; });
 
+    // ==== FORM CONTACTO (Supabase + fallback) ====
+(function(){
+  const form = $$('#contactForm');
+  if(!form) return;
+
+  const okMsg  = $$('#contactOk');
+  const errMsg = $$('#contactErr');
+
+  function show(el){ if(el) el.style.display='block'; }
+  function hide(el){ if(el) el.style.display='none'; }
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    hide(okMsg); hide(errMsg);
+
+    const fd = new FormData(form);
+    const name   = (fd.get('name')||'').toString().trim();
+    const email  = (fd.get('email')||'').toString().trim();
+    const phone  = (fd.get('phone')||'').toString().trim();
+    const message= (fd.get('message')||'').toString().trim();
+    const interes= (fd.get('interes')||'').toString().trim();
+    const zona   = (fd.get('zona')||'').toString().trim();
+    const presupuesto = (fd.get('presupuesto')||'').toString().trim();
+
+    // Colapsamos los campos “extra” dentro del mensaje para no perderlos
+    const fullMessage =
+      [message,
+       interes && `Interés: ${interes}`,
+       zona && `Zona: ${zona}`,
+       presupuesto && `Presupuesto: ${presupuesto}`
+      ].filter(Boolean).join('\n');
+
+    // Deshabilita botón mientras envía
+    const btn = form.querySelector('button[type="submit"]');
+    const prev = btn?.textContent;
+    if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+    // Si hay Supabase (sb creado), guardamos; si no, fallback a mailto
+    async function fallbackMailto(){
+      const params = encodeURIComponent(
+        `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`
+      );
+      window.location.href =
+        `mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`;
+    }
+
+    try {
+      if(sb){
+        const { error } = await sb.from('contacts').insert({
+          name, email, phone, message: fullMessage, source: 'web'
+        });
+        if(error){
+          console.warn('Supabase insert error:', error);
+          show(errMsg);
+          await fallbackMailto(); // intentamos por mail también
+        }else{
+          show(okMsg);
+          form.reset();
+        }
+      }else{
+        // Sin Supabase disponible
+        await fallbackMailto();
+      }
+    } catch (err){
+      console.warn(err);
+      show(errMsg);
+      await fallbackMailto();
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = prev || 'Enviar'; }
+    }
+  });
+})();
+
+    
     // ==== TESTIMONIOS (7 items) ====
     const REVIEWS=[
       {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
