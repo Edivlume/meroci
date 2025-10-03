@@ -207,6 +207,12 @@
   </div>
   <p style="color:var(--muted);margin-top:10px">También puedes escribirnos a <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p>
 </form>
+<p id="contactOk" style="display:none;color:green;margin-top:10px">
+  ¡Gracias! Recibimos tu mensaje y te contactamos pronto.
+</p>
+<p id="contactErr" style="display:none;color:#b91c1c;margin-top:10px">
+  Ocurrió un error. Intenta de nuevo o escríbenos por correo.
+</p>
         <div class="svc" style="box-shadow:var(--shadow)"><h3 style="margin-top:0">Oficinas</h3><p style="color:var(--muted)">Atendemos CDMX y zonas conurbadas. Citas previa agenda.</p><div style="display:grid;gap:8px"><div class="hero-card"><strong>Teléfono</strong><span>55 3029 7418 • 55 5414 9125</span></div><div class="hero-card"><strong>Correo</strong><span>meroci1629@gmail.com</span></div><div class="hero-card"><strong>Horario</strong><span>Lunes a sábado · 9:00–19:00</span></div></div></div>
       </div>
     </div>
@@ -308,11 +314,11 @@
     try{ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } }catch(e){}
 
     const RemoteStore = {
-      enabled: ()=> !!sb,
-      async list(){ if(!sb) return []; const { data, error } = await sb.from('propiedades').select('*'); if(error){ console.warn('Supabase list error', error); return []; } return Array.isArray(data)? data : []; },
-      async upsert(obj){ if(!sb) return; const { error } = await sb.from('propiedades').upsert(obj, { onConflict:'id' }); if(error) console.warn('Supabase upsert error', error); },
-      async remove(id){ if(!sb) return; const { error } = await sb.from('propiedades').delete().eq('id', id); if(error) console.warn('Supabase delete error', error); }
-    };
+  enabled: ()=> !!sb,
+  async list(){ if(!sb) return []; const { data, error } = await sb.from('properties').select('*'); if(error){ console.warn('Supabase list error', error); return []; } return Array.isArray(data)? data : []; },
+  async upsert(obj){ if(!sb) return; const { error } = await sb.from('properties').upsert(obj, { onConflict:'id' }); if(error) console.warn('Supabase upsert error', error); },
+  async remove(id){ if(!sb) return; const { error } = await sb.from('properties').delete().eq('id', id); if(error) console.warn('Supabase delete error', error); }
+};
 
     // Año en footer
     $$('#yy').textContent = new Date().getFullYear();
@@ -418,15 +424,10 @@
     function persistOnlyCustom(){ const demo=new Set(['casa-condesa','depa-santa-fe','loft-centro-mty','terreno-zapopan','local-polanco','ph-roma']); const custom=INVENTARIO.filter(p=>!demo.has(p.id)); localStorage.setItem(LS_KEY, JSON.stringify(custom)); }
     function slug(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 
-    // ==== FORM CONTACTO ====
-    <!-- Mensajes opcionales (puedes pegarlos justo debajo del <form>) -->
-<p id="contactOk" style="display:none;color:green;margin-top:10px">¡Gracias! Recibimos tu mensaje y te contactamos pronto.</p>
-<p id="contactErr" style="display:none;color:#b91c1c;margin-top:10px">Ocurrió un error. Intenta de nuevo o escríbenos por correo.</p>
-$$('#form').addEventListener('submit',(e)=>{ e.preventDefault(); const data=new FormData(e.target); const params=[...data.entries()].map(([k,v])=>`*${k}*: ${v}`).join('%0A'); window.location.href=`mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`; });
-
     // ==== FORM CONTACTO (Supabase + fallback) ====
 (function(){
-  const form = $$('#contactForm');
+  // Usamos el MISMO id que ya existe en el HTML
+  const form = $$('#form');
   if(!form) return;
 
   const okMsg  = $$('#contactOk');
@@ -440,28 +441,28 @@ $$('#form').addEventListener('submit',(e)=>{ e.preventDefault(); const data=new 
     hide(okMsg); hide(errMsg);
 
     const fd = new FormData(form);
-    const name   = (fd.get('name')||'').toString().trim();
+    // MAPEAMOS nombres del HTML (español) a las variables esperadas
+    const name   = (fd.get('nombre')||'').toString().trim();
     const email  = (fd.get('email')||'').toString().trim();
-    const phone  = (fd.get('phone')||'').toString().trim();
-    const message= (fd.get('message')||'').toString().trim();
+    const phone  = (fd.get('telefono')||'').toString().trim();
+    const message= (fd.get('mensaje')||'').toString().trim();
     const interes= (fd.get('interes')||'').toString().trim();
     const zona   = (fd.get('zona')||'').toString().trim();
     const presupuesto = (fd.get('presupuesto')||'').toString().trim();
 
-    // Colapsamos los campos “extra” dentro del mensaje para no perderlos
-    const fullMessage =
-      [message,
-       interes && `Interés: ${interes}`,
-       zona && `Zona: ${zona}`,
-       presupuesto && `Presupuesto: ${presupuesto}`
-      ].filter(Boolean).join('\n');
+    const fullMessage = [
+      message,
+      interes && `Interés: ${interes}`,
+      zona && `Zona: ${zona}`,
+      presupuesto && `Presupuesto: ${presupuesto}`
+    ].filter(Boolean).join('\n');
 
     // Deshabilita botón mientras envía
     const btn = form.querySelector('button[type="submit"]');
     const prev = btn?.textContent;
     if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
 
-    // Si hay Supabase (sb creado), guardamos; si no, fallback a mailto
+    // Fallback a mailto si no hay Supabase o falla
     async function fallbackMailto(){
       const params = encodeURIComponent(
         `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`
@@ -472,19 +473,20 @@ $$('#form').addEventListener('submit',(e)=>{ e.preventDefault(); const data=new 
 
     try {
       if(sb){
-        const { error } = await sb.from('contacts').insert({
-          name, email, phone, message: fullMessage, source: 'web'
-        });
+        // OJO: la tabla se llama 'contacts' (plural)
+        const { data, error } = await sb.from('contacts')
+          .insert({ name, email, phone, message: fullMessage, source: 'web' })
+          .select(); // para ver el registro en consola
+
+        console.log('contacts.insert ->', { data, error });
         if(error){
-          console.warn('Supabase insert error:', error);
           show(errMsg);
-          await fallbackMailto(); // intentamos por mail también
+          await fallbackMailto();
         }else{
           show(okMsg);
           form.reset();
         }
       }else{
-        // Sin Supabase disponible
         await fallbackMailto();
       }
     } catch (err){
@@ -496,7 +498,6 @@ $$('#form').addEventListener('submit',(e)=>{ e.preventDefault(); const data=new 
     }
   });
 })();
-
     
     // ==== TESTIMONIOS (7 items) ====
     const REVIEWS=[
