@@ -475,14 +475,15 @@
         const { error } = await sb.from('contacts')
   .insert({ name, email, phone, message: fullMessage, source: 'web' }, { returning: 'minimal' });
 
-        console.log('contacts.insert ->', { data, error });
+        console.log('contacts.insert ->', { ok: !error, error });
         if(error){
           show(errMsg);
           await fallbackMailto();
-        }else{
-          show(okMsg);
-          form.reset();
-        }
+     }else{
+       hide(errMsg);
+       show(okMsg);
+       form.reset();
+     }
       }else{
         await fallbackMailto();
       }
