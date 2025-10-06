@@ -346,19 +346,16 @@
     function poblarCiudades(){ const est=elEstado.value; let ciudades=[]; if(est){ ciudades=CATALOGOS.ciudades[est]||[]; } else { const set=new Set(); Object.values(CATALOGOS.ciudades).flat().forEach(c=>set.add(c)); ciudades=[...set]; } elCiudad.innerHTML = '<option value="">Ciudad / Municipio</option>' + ciudades.sort().map(c=>`<option>${c}</option>`).join(''); }
     elEstado.addEventListener('change', poblarCiudades);
 
-    // ==== INVENTARIO (demo + LS + Remoto opcional) ====
-    let INVENTARIO = [
-      { id:'casa-condesa', titulo:'Casa con terraza en La Condesa', tipo:'Casa', estado:'Ciudad de México', ciudad:'Miguel Hidalgo', colonia:'Condesa', precio:14500000, m2:210, rec:3, ban:3, est:2, img:'https://images.unsplash.com/photo-1502005229762-cf1b2da7c52f?q=80&w=1500&auto=format&fit=crop', video:'', i24:'', destacado:true, desc:'Arquitectura de autor con terraza arbolada, iluminación natural y distribución abierta. A pasos de parques y restaurantes.' },
-      { id:'depa-santa-fe', titulo:'Departamento con amenidades – Santa Fe', tipo:'Departamento', estado:'Ciudad de México', ciudad:'Cuajimalpa', colonia:'Santa Fe', precio:6200000, m2:95, rec:2, ban:2, est:2, img:'https://images.unsplash.com/photo-1505692794403-34d4982f88aa?q=80&w=1500&auto=format&fit=crop', video:'', i24:'', destacado:true, desc:'Vista panorámica, cocina abierta, family y balcón. Torre con gym, alberca y seguridad 24/7.' },
-      { id:'loft-centro-mty', titulo:'Loft moderno en el Centro – Monterrey', tipo:'Departamento', estado:'Nuevo León', ciudad:'Monterrey', colonia:'Centro', precio:2890000, m2:58, rec:1, ban:1, est:1, img:'https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1500&auto=format&fit=crop', video:'', i24:'', destacado:true, desc:'Loft amueblado ideal para inversionistas. Alta demanda para renta a ejecutivos.' },
-      { id:'terreno-zapopan', titulo:'Terreno en coto – Zapopan', tipo:'Terreno', estado:'Jalisco', ciudad:'Zapopan', colonia:'Zapopan Norte', precio:2150000, m2:160, rec:0, ban:0, est:0, img:'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?q=80&w=1500&auto=format&fit=crop', video:'', i24:'', destacado:false, desc:'Terreno regular en fraccionamiento con control de acceso, áreas verdes y casa club.' },
-      { id:'local-polanco', titulo:'Local con gran frente – Polanco', tipo:'Local', estado:'Ciudad de México', ciudad:'Miguel Hidalgo', colonia:'Polanco', precio:9800000, m2:75, rec:0, ban:1, est:0, img:'https://images.unsplash.com/photo-1529429612777-7125f0e82c73?q=80&w=1500&auto=format&fit=crop', video:'', i24:'', destacado:true, desc:'Excelente ubicación comercial, alto flujo peatonal y vehicular. Ideal boutique o café.' },
-      { id:'ph-roma', titulo:'PH con roof garden – Roma Norte', tipo:'Departamento', estado:'Ciudad de México', ciudad:'Cuauhtémoc', colonia:'Roma Norte', precio:8750000, m2:125, rec:2, ban:2, est:2, img:'https://images.unsplash.com/photo-1499914485622-a88fac536970?q=80&w=1500&auto=format&fit=crop', video:'', i24:'', destacado:true, desc:'Penthouse de doble altura con roof privado y acabados premium. Proyecto pet-friendly.' }
-    ];
-    const LS_KEY='meroci:props';
-    try{ const fromLS=JSON.parse(localStorage.getItem(LS_KEY)||'[]'); const map=new Map(); [...INVENTARIO,...fromLS].forEach(p=>map.set(p.id,p)); INVENTARIO=[...map.values()]; }catch(e){}
+    // ==== INVENTARIO (sólo remoto) ====
+let INVENTARIO = [];
+const LS_KEY = 'meroci:props'; // ya no se usa, lo limpiamos
+try{ localStorage.removeItem(LS_KEY); }catch(e){}
 
-    async function syncFromRemote(){ if(!RemoteStore.enabled()) return; const remote = await RemoteStore.list(); if(remote.length){ const map=new Map(); [...INVENTARIO,...remote].forEach(p=>map.set(p.id,p)); INVENTARIO=[...map.values()]; } }
+    async function syncFromRemote(){
+  if(!RemoteStore.enabled()) return;
+  const remote = await RemoteStore.list();
+  INVENTARIO = Array.isArray(remote) ? remote : [];
+}
 
     // ==== LISTADO ====
     function render(list){
@@ -412,17 +409,45 @@
     let editId=null;
     $$('#nuevo-btn').addEventListener('click',()=> mostrarForm());
     $$('#cancelar-prop').addEventListener('click',()=> ocultarForm());
-    $$('#guardar-prop').addEventListener('click',async ()=>{
-      const obj={ id: editId||slug(f.titulo.value)+'-'+Date.now().toString().slice(-5), titulo:f.titulo.value, tipo:f.tipo.value, estado:f.estado.value, ciudad:f.ciudad.value, colonia:f.colonia.value, precio:Number(f.precio.value||0), m2:Number(f.m2.value||0), rec:Number(f.rec.value||0), ban:Number(f.ban.value||0), est:Number(f.est.value||0), img:f.img.value, video:f.video.value, i24:f.i24.value, desc:f.desc.value, destacado:!!f.destacado.checked };
-      if(!obj.titulo||!obj.img){ alert('Título e imagen son obligatorios'); return; }
-      if(editId){ INVENTARIO = INVENTARIO.map(p=> p.id===editId? obj : p); } else { INVENTARIO.unshift(obj); }
-      persistOnlyCustom();
-      if(RemoteStore.enabled()) await RemoteStore.upsert(obj);
-      ocultarForm(); renderTabla(); poblarCiudades(); applyFilters();
-    });
+    $$('#guardar-prop').addEventListener('click', async ()=>{
+  const obj = {
+    id: editId || slug(f.titulo.value)+'-'+Date.now().toString().slice(-5),
+    titulo: f.titulo.value,
+    tipo: f.tipo.value,
+    estado: f.estado.value,
+    ciudad: f.ciudad.value,
+    colonia: f.colonia.value,
+    precio: Number(f.precio.value||0),
+    m2: Number(f.m2.value||0),
+    rec: Number(f.rec.value||0),
+    ban: Number(f.ban.value||0),
+    est: Number(f.est.value||0),
+    img: f.img.value,
+    video: f.video.value,
+    i24: f.i24.value,
+    desc: f.desc.value,
+    destacado: !!f.destacado.checked
+  };
 
-    function persistOnlyCustom(){ const demo=new Set(['casa-condesa','depa-santa-fe','loft-centro-mty','terreno-zapopan','local-polanco','ph-roma']); const custom=INVENTARIO.filter(p=>!demo.has(p.id)); localStorage.setItem(LS_KEY, JSON.stringify(custom)); }
-    function slug(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+  if(!obj.titulo || !obj.img){
+    alert('Título e imagen son obligatorios');
+    return;
+  }
+
+  // Siempre escribimos en Supabase
+  if(RemoteStore.enabled()){
+    await RemoteStore.upsert(obj);
+    // Releer desde Supabase para que todos vean lo mismo
+    await syncFromRemote();
+  }else{
+    alert('Conexión remota no disponible. Configura Supabase.');
+  }
+
+  ocultarForm();
+  renderTabla();
+  poblarCiudades();
+  applyFilters();
+});
 
     // ==== FORM CONTACTO (Supabase + fallback) ====
 (function(){
@@ -516,8 +541,16 @@
     document.addEventListener('click',(e)=>{ if(e.target.classList && e.target.classList.contains('rev-nav')){ revIndex=(revIndex+(e.target.classList.contains('next')?1:-1)+pages())%pages(); updateReviews(); } });
 
     // ==== INICIALIZACIÓN ====
-    async function init(){ await syncFromRemote(); render(INVENTARIO.filter(p=>p.destacado!==false)); applyFilters(); renderReviews(); document.body.addEventListener('click',(e)=>{ const btn=e.target.closest('[data-open]'); if(btn){ openModal(btn.getAttribute('data-open')); } }); }
-    document.addEventListener('DOMContentLoaded', init);
+    async function init(){
+  await syncFromRemote(); // carga remota
+  render(INVENTARIO.filter(p=>p.destacado!==false));
+  applyFilters();
+  renderReviews();
+  document.body.addEventListener('click',(e)=>{
+    const btn=e.target.closest('[data-open]');
+    if(btn){ openModal(btn.getAttribute('data-open')); }
+  });
+}
 
     // ==== PRUEBAS RÁPIDAS (no invasivas) ====
     (function selfTest(){ try{ console.assert(typeof RemoteStore.enabled==='function', 'RemoteStore OK'); console.assert(Array.isArray(REVIEWS) && REVIEWS.length===7, 'Reviews length OK'); console.assert(typeof CATALOGOS === 'object', 'Catálogos OK'); }catch(err){ console.warn('SelfTest:', err); } })();
