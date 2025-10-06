@@ -472,9 +472,8 @@
 
     try {
       if(sb){
-        const { data, error } = await sb.from('contacts')
-          .insert({ name, email, phone, message: fullMessage, source: 'web' })
-          .select(); // debug en consola
+        const { error } = await sb.from('contacts')
+  .insert({ name, email, phone, message: fullMessage, source: 'web' }, { returning: 'minimal' });
 
         console.log('contacts.insert ->', { data, error });
         if(error){
