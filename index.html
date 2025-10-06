@@ -333,7 +333,7 @@
     // Intentar cargar todos los municipios/alcaldías desde archivo opcional
     (async function(){
       try{
-        const r = await fetch('municipios-mx.json');
+        const r = await fetch('municipios-live.js');
         if(r.ok){ const data = await r.json(); if(Array.isArray(data.estados)) CATALOGOS.estados = data.estados; if(data.ciudades) CATALOGOS.ciudades = data.ciudades; }
       }catch(e){}
       poblarEstados(); poblarCiudades();
