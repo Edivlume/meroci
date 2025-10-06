@@ -523,22 +523,79 @@ try{ localStorage.removeItem(LS_KEY); }catch(e){}
 })();
     
     // ==== TESTIMONIOS (7 items) ====
-    const REVIEWS=[
-      {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
-      {name:'Javier & Sofía', city:'Guadalajara, Jal.', type:'Compra', stars:5, text:'Claudia entendió nuestro presupuesto y zona. Cerramos en dos semanas.'},
-      {name:'Alejandra R.', city:'Polanco, CDMX', type:'Renta', stars:5, text:'Negoció mantenimiento y fechas flexibles. ¡Cero estrés!'},
-      {name:'Carlos M.', city:'San Pedro, NL', type:'Compra', stars:4, text:'Visitas coordinadas y pros/contras claros con Imelda.'},
-      {name:'Paola G.', city:'Toluca, Edo. Méx.', type:'Venta', stars:5, text:'Regularizaron papeles antes de publicar. Cierre sin contratiempos.'},
-      {name:'Patricia D.', city:'Benito Juárez, CDMX', type:'Renta', stars:5, text:'Solo visitas calificadas. Gracias, Claudia.'},
-      {name:'Esteban N.', city:'Querétaro, Qro.', type:'Compra', stars:5, text:'Imelda y Claudia nos guiaron a distancia hasta la firma.'}
-    ];
-    function starHTML(n){ return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-    function renderReviews(){ const track=$$('#reviews-track'); if(!track) return; track.innerHTML=''; REVIEWS.forEach(r=>{ const el=document.createElement('article'); el.className='review'; const ini=r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); el.innerHTML=`<div class="rev-head"><div class="rev-avatar">${ini}</div><div><div class="rev-name">${r.name}</div><div class="rev-sub">${r.city} • ${r.type}</div><div class="rev-stars" aria-label="${r.stars} de 5">${starHTML(r.stars)}</div></div></div><p class="rev-text">“${r.text}”</p>`; track.appendChild(el); }); buildDots(); updateReviews(); }
-    let revIndex=0, timer; function perView(){ if(matchMedia('(max-width:640px)').matches) return 1; if(matchMedia('(max-width:1024px)').matches) return 2; return 3; }
-    function pages(){ const track=$$('#reviews-track'); return Math.max(1, Math.ceil(track.children.length / perView())); }
-    function updateReviews(){ const track=$$('#reviews-track'); const card=track.querySelector('.review'); if(card){ const w=card.getBoundingClientRect().width+16; track.style.transform=`translateX(${-revIndex*w*perView()}px)`; } const dots=$$$('#reviews-dots button'); dots.forEach((d,i)=> d.classList.toggle('active', i===revIndex)); clearInterval(timer); timer=setInterval(()=>{ revIndex=(revIndex+1)%pages(); updateReviews(); }, 5000); }
-    function buildDots(){ const dots=$$('#reviews-dots'); dots.innerHTML=''; const pg=pages(); for(let i=0;i<pg;i++){ const b=document.createElement('button'); if(i===0) b.classList.add('active'); b.addEventListener('click',()=>{ revIndex=i; updateReviews(); }); dots.appendChild(b); } }
-    document.addEventListener('click',(e)=>{ if(e.target.classList && e.target.classList.contains('rev-nav')){ revIndex=(revIndex+(e.target.classList.contains('next')?1:-1)+pages())%pages(); updateReviews(); } });
+const REVIEWS = [
+  {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
+  {name:'Javier & Sofía', city:'Guadalajara, Jal.', type:'Compra', stars:5, text:'Claudia entendió nuestro presupuesto y zona. Cerramos en dos semanas.'},
+  {name:'Alejandra R.', city:'Polanco, CDMX', type:'Renta', stars:5, text:'Negoció mantenimiento y fechas flexibles. ¡Cero estrés!'},
+  {name:'Carlos M.', city:'San Pedro, NL', type:'Compra', stars:4, text:'Visitas coordinadas y pros/contras claros con Imelda.'},
+  {name:'Paola G.', city:'Toluca, Edo. Méx.', type:'Venta', stars:5, text:'Regularizaron papeles antes de publicar. Cierre sin contratiempos.'},
+  {name:'Patricia D.', city:'Benito Juárez, CDMX', type:'Renta', stars:5, text:'Solo visitas calificadas. Gracias, Claudia.'},
+  {name:'Esteban N.', city:'Querétaro, Qro.', type:'Compra', stars:5, text:'Imelda y Claudia nos guiaron a distancia hasta la firma.'}
+];
+
+function starHTML(n){ return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+
+function renderReviews(){
+  const track = document.querySelector('#reviews-track');
+  if(!track) return;
+  track.innerHTML = '';
+  (REVIEWS || []).forEach(r=>{
+    const el = document.createElement('article');
+    el.className = 'review';
+    const ini = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    el.innerHTML = `
+      <div class="rev-head">
+        <div class="rev-avatar">${ini}</div>
+        <div>
+          <div class="rev-name">${r.name}</div>
+          <div class="rev-sub">${r.city} • ${r.type}</div>
+          <div class="rev-stars" aria-label="${r.stars} de 5">${starHTML(r.stars)}</div>
+        </div>
+      </div>
+      <p class="rev-text">“${r.text}”</p>`;
+    track.appendChild(el);
+  });
+  buildDots(); updateReviews();
+}
+
+let revIndex=0, timer;
+function perView(){ if(matchMedia('(max-width:640px)').matches) return 1; if(matchMedia('(max-width:1024px)').matches) return 2; return 3; }
+function pages(){
+  const track = document.querySelector('#reviews-track');
+  const count = track ? track.children.length : 0;
+  return Math.max(1, Math.ceil(count / perView()));
+}
+function updateReviews(){
+  const track = document.querySelector('#reviews-track');
+  const card = track?.querySelector('.review');
+  if(card){
+    const w = card.getBoundingClientRect().width + 16;
+    track.style.transform = `translateX(${-revIndex*w*perView()}px)`;
+  }
+  const dots = Array.from(document.querySelectorAll('#reviews-dots button'));
+  dots.forEach((d,i)=> d.classList.toggle('active', i===revIndex));
+  clearInterval(timer);
+  timer = setInterval(()=>{ revIndex=(revIndex+1)%pages(); updateReviews(); }, 5000);
+}
+function buildDots(){
+  const dots = document.querySelector('#reviews-dots');
+  if(!dots) return;
+  dots.innerHTML = '';
+  const pg = pages();
+  for(let i=0;i<pg;i++){
+    const b = document.createElement('button');
+    if(i===0) b.classList.add('active');
+    b.addEventListener('click',()=>{ revIndex=i; updateReviews(); });
+    dots.appendChild(b);
+  }
+}
+document.addEventListener('click',(e)=>{
+  if(e.target.classList && e.target.classList.contains('rev-nav')){
+    revIndex = (revIndex + (e.target.classList.contains('next')?1:-1) + pages()) % pages();
+    updateReviews();
+  }
+});
+
 
     // ==== INICIALIZACIÓN ====
     async function init(){
