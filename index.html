@@ -434,19 +434,96 @@ const RemoteStore = {
 
     // ==== LISTADO ====
     function render(list){
-      elCards.innerHTML='';
-      if(!list.length){ elCards.innerHTML='<div class="svc" style="grid-column:1/-1;text-align:center">Sin resultados. Ajusta filtros o <a href="#contacto">contáctanos</a>.</div>'; return; }
-      list.forEach(p=>{
-        const card=document.createElement('article'); card.className='card';
-        const videoBadge = p.video? '<div class="chip">🎬 Video</div>' : '';
-        card.innerHTML=`<div class="thumb"><img src="${p.img}" alt="${p.titulo}"><div class="chip">${p.tipo}</div>${videoBadge}</div>
-          <div class="card-body"><div class="price">${money(p.precio)}</div><div style="font-weight:700">${p.titulo}</div>
-          <div class="meta">${p.ciudad} • ${p.colonia} • ${p.m2} m² • ${p.rec} rec • ${p.ban} baño(s)</div></div>
-          <div class="card-actions"><button class="btn primary" data-open="${p.id}">Ver detalles</button>
-          <a class="btn ghost" href="https://wa.me/525530297418?text=Hola%20MEROCI,%20quiero%20información%20sobre:%20${encodeURIComponent(p.titulo)}" target="_blank" rel="noopener">WhatsApp</a></div>`;
-        elCards.appendChild(card);
-      });
+  elCards.innerHTML = '';
+  if(!list.length){
+    elCards.innerHTML = '<div class="svc" style="grid-column:1/-1;text-align:center">Sin resultados. Ajusta filtros o <a href="#contacto">contáctanos</a>.</div>';
+    return;
+  }
+
+  list.forEach(p=>{
+    const card = document.createElement('article');
+    card.className = 'card';
+
+    // --- thumb (imagen + chips)
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+
+    const img = document.createElement('img');
+    // src seguro (si no hay URL válida, no seteamos src para evitar 404 raros tipo %7Bp.img%7D)
+    const imgUrl = (p.img || '').trim();
+    if (imgUrl && /^https?:\/\//i.test(imgUrl)) {
+      img.src = imgUrl;
     }
+    img.alt = p.titulo || '';
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => {
+      // si falla, ocultamos la imagen para que la tarjeta no se rompa
+      img.style.display = 'none';
+      // opcional: podrías poner un fondo neutro:
+      // thumb.style.background = '#f3f4f6';
+    };
+    thumb.appendChild(img);
+
+    const tipoChip = document.createElement('div');
+    tipoChip.className = 'chip';
+    tipoChip.textContent = p.tipo || '';
+    thumb.appendChild(tipoChip);
+
+    if (p.video){
+      const videoChip = document.createElement('div');
+      videoChip.className = 'chip';
+      videoChip.textContent = '🎬 Video';
+      videoChip.style.left = 'auto';
+      videoChip.style.right = '10px';
+      thumb.appendChild(videoChip);
+    }
+
+    // --- body
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const price = document.createElement('div');
+    price.className = 'price';
+    price.textContent = money(p.precio);
+    body.appendChild(price);
+
+    const title = document.createElement('div');
+    title.style.fontWeight = '700';
+    title.textContent = p.titulo || '';
+    body.appendChild(title);
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = `${p.ciudad||''} • ${p.colonia||''} • ${p.m2||0} m² • ${p.rec||0} rec • ${p.ban||0} baño(s)`;
+    body.appendChild(meta);
+
+    // --- acciones
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    const btnVer = document.createElement('button');
+    btnVer.className = 'btn primary';
+    btnVer.textContent = 'Ver detalles';
+    btnVer.setAttribute('data-open', p.id);
+    actions.appendChild(btnVer);
+
+    const btnWa = document.createElement('a');
+    btnWa.className = 'btn ghost';
+    btnWa.target = '_blank';
+    btnWa.rel = 'noopener';
+    btnWa.href = `https://wa.me/525530297418?text=Hola%20MEROCI,%20quiero%20información%20sobre:%20${encodeURIComponent(p.titulo||'propiedad')}`;
+    btnWa.textContent = 'WhatsApp';
+    actions.appendChild(btnWa);
+
+    // --- ensamblar card
+    card.appendChild(thumb);
+    card.appendChild(body);
+    card.appendChild(actions);
+    elCards.appendChild(card);
+  });
+}
+
     function applyFilters(){
       const q=(elQ.value||'').toLowerCase(), tipo=elTipo.value, estado=elEstado.value, ciudad=elCiudad.value;
       const min=parseInt(elMin.value||0,10), max=parseInt(elMax.value||1e12,10);
