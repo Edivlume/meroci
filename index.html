@@ -364,8 +364,9 @@
       async upsert(obj){
         if(!sb) return;
 
+        // Build row sin forzar id:null; si no hay id, NO la enviamos
         const row = {
-          id: obj.id || null,
+          // id: (obj.id ?? undefined),  // <- no enviar si no existe
           titulo: obj.titulo ?? null,
           desc: obj.desc ?? null,
           precio: obj.precio != null ? Number(obj.precio) : null,
@@ -383,17 +384,29 @@
           destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
         };
 
-        const { error } = await sb.from('properties').upsert(row, { onConflict:'id' });
-        if (error) { console.error('Supabase upsert error:', error); throw error; }
+        // INSERT si no hay id, UPDATE si hay id
+        if (!obj.id) {
+          // Importante: NO mandamos la columna id, así Postgres usa gen_random_uuid()
+          const { data, error } = await sb
+             .from('properties')
+             .insert(row)
+             .select('id')        // obtenemos el id generado
+             .single();
+
+          if (error) { console.error('insert error', error); throw error; }
+          // devolvemos el id para que la UI lo tenga
+          return data?.id;
+        } else {
+          const { error } = await sb
+            .from('properties')
+            .update(row)
+            .eq('id', obj.id);
+
+          if (error) { console.error('update error', error); throw error; }
+          return obj.id;
+        }
       },
-
-      async remove(id){
-        if(!sb) return;
-        const { error } = await sb.from('properties').delete().eq('id', id);
-        if (error) { console.error('Supabase delete error:', error); throw error; }
-      }
-    };
-
+                  
     // Año en footer
     $$('#yy').textContent = new Date().getFullYear();
 
