@@ -347,30 +347,37 @@
       },
 
       async upsert(obj){
-        if(!sb) return;
+  if(!sb) return;
 
-        const row = {
-          id: obj.id || null,
-          titulo: obj.titulo ?? null,
-          desc: obj.desc ?? null,
-          precio: obj.precio != null ? Number(obj.precio) : null,
-          tipo: obj.tipo ?? null,
-          estado: obj.estado ?? null,
-          ciudad: obj.ciudad ?? null,
-          colonia: obj.colonia ?? null,
-          m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
-          rec: obj.rec != null ? parseInt(obj.rec,10) : null,
-          ban: obj.ban != null ? parseInt(obj.ban,10) : null,
-          est: obj.est != null ? parseInt(obj.est,10) : null,
-          img: obj.img ?? null,
-          video: obj.video || null,
-          i24: obj.i24 || null,
-          destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
-        };
+  const row = {
+    id: obj.id || null, // si viene null, lo quitamos abajo
+    titulo: obj.titulo ?? null,
+    desc: obj.desc ?? null,
+    precio: obj.precio != null ? Number(obj.precio) : null,
+    tipo: obj.tipo ?? null,
+    estado: obj.estado ?? null,
+    ciudad: obj.ciudad ?? null,
+    colonia: obj.colonia ?? null,
+    m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
+    rec: obj.rec != null ? parseInt(obj.rec,10) : null,
+    ban: obj.ban != null ? parseInt(obj.ban,10) : null,
+    est: obj.est != null ? parseInt(obj.est,10) : null,
+    img: obj.img ?? null,
+    video: obj.video || null,
+    i24: obj.i24 || null,
+    destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
+  };
 
-        const { error } = await sb.from('properties').upsert(row, { onConflict:'id' });
-        if (error) { console.error('Supabase upsert error:', error); throw error; }
-      },
+  // 👇 FIX: no mandes id cuando es nuevo, así Postgres usa el DEFAULT
+  if (!row.id) delete row.id;
+
+  // Pide que devuelva la fila para capturar el id generado
+  const { data, error } = await sb.from('properties').upsert(row).select().single();
+  if (error) { console.error('Supabase upsert error:', error); throw error; }
+
+  // Si era nuevo, propaga el id generado al objeto en memoria
+  if (!obj.id && data?.id) obj.id = data.id;
+}
 
       async remove(id){
         if(!sb) return;
