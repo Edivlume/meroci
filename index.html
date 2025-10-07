@@ -565,12 +565,13 @@
       }
 
       try{
-        if(RemoteStore.enabled()) await RemoteStore.upsert(obj);
-
+        let newId = null;
+        if(RemoteStore.enabled()) newId = await RemoteStore.upsert(obj);
+        
         if(editId){
-          INVENTARIO = INVENTARIO.map(p => p.id === editId ? obj : p);
+          INVENTARIO = INVENTARIO.map(p => p.id === editId ? { ...obj } : p);
         } else {
-          obj.id ||= 'tmp-' + Date.now();
+          obj.id = newId || ('tmp-' + Date.now()); // usa el id real si lo hubo
           INVENTARIO.unshift(obj);
         }
         persistOnlyCustom();
