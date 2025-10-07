@@ -110,9 +110,9 @@
   <header class="nav">
     <div class="nav-inner">
       <a class="brand" href="#">
-  <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
-  <div>MEROCI<br><small>ASESORAS INMOBILIARIAS</small></div>
-</a>
+        <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
+        <div>MEROCI<br><small>ASESORAS INMOBILIARIAS</small></div>
+      </a>
       <nav class="menu">
         <a href="#propiedades">Propiedades</a>
         <a href="#servicios">Servicios</a>
@@ -232,10 +232,10 @@
 
   <footer>
     <div class="foot">
- <div class="brand" style="color:#fff">
-  <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
-  <div>MEROCI<br><small style="color:#e5e7eb">ASESORAS INMOBILIARIAS</small></div>
-</div>
+      <div class="brand" style="color:#fff">
+        <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
+        <div>MEROCI<br><small style="color:#e5e7eb">ASESORAS INMOBILIARIAS</small></div>
+      </div>
       <div><h4>Contacto</h4><p style="margin:6px 0">📞 55 3029 7418</p><p style="margin:6px 0">📞 55 5414 9125</p><p style="margin:6px 0">✉️ <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p><p style="margin:6px 0"><a href="https://www.inmuebles24.com/inmobiliarias/luz-lugo_50313017-inmuebles.html" target="_blank" rel="noopener">Perfil en Inmuebles24</a></p></div>
       <div><h4>Enlaces</h4><p><a href="#propiedades">Propiedades</a></p><p><a href="#servicios">Servicios</a></p><p><a href="#equipo">Equipo</a></p><p><a href="#contacto">Contacto</a></p></div>
     </div>
@@ -304,6 +304,21 @@
     const $$ = (sel, ctx=document) => ctx.querySelector(sel);
     const $$$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     const money = v => '$' + Number(v||0).toLocaleString('es-MX') + ' MXN';
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    // Placeholder/fallback para imágenes rotas
+    const FALLBACK_IMG = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750"><rect width="100%25" height="100%25" fill="%23f3f4f6"/><text x="50%25" y="50%25" dy=".35em" text-anchor="middle" font-family="Arial" font-size="28" fill="%239ca3af">Imagen no disponible</text></svg>';
+
+    // Normaliza/escapa la URL de imagen para evitar 404 por caracteres raros
+    function safeSrc(u){
+      try{
+        if(!u || typeof u!=='string') return FALLBACK_IMG;
+        const clean = u.trim().replace(/^\?+/, ''); // por si la URL viene empezando con '?'
+        return encodeURI(clean);
+      }catch(e){
+        return FALLBACK_IMG;
+      }
+    }
 
     // ==== CONFIG REMOTA (opcional) ====
     const SUPABASE_URL = "https://juottsbieeotqxcqrwdc.supabase.co";
@@ -311,89 +326,73 @@
     let sb = null;
     try{ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } }catch(e){}
 
-    <script>
-// ==== PERSISTENCIA REMOTA (campos en español) ====
-const RemoteStore = {
-  enabled: ()=> !!sb,
+    // ==== PERSISTENCIA REMOTA (campos en español) ====
+    const RemoteStore = {
+      enabled: ()=> !!sb,
 
-  async list(){
-    if(!sb) return [];
-    const { data, error } = await sb
-      .from('properties')
-      .select('*')
-      .order('created_at', { ascending:false });
+      async list(){
+        if(!sb) return [];
+        const { data, error } = await sb
+          .from('properties')
+          .select('*')
+          .order('created_at', { ascending:false });
 
-    if (error) {
-      console.warn('Supabase list error', error);
-      return [];
-    }
-    return (Array.isArray(data) ? data : []).map(r => ({
-      id: r.id,
-      titulo: r.titulo ?? '',
-      desc: r.desc ?? '',
-      precio: Number(r.precio ?? 0),
-      tipo: r.tipo ?? '',
-      estado: r.estado ?? '',
-      ciudad: r.ciudad ?? '',
-      colonia: r.colonia ?? '',
-      m2: Number(r.m2 ?? 0),
-      rec: Number(r.rec ?? 0),
-      ban: Number(r.ban ?? 0),
-      est: Number(r.est ?? 0),
-      img: r.img ?? '',
-      video: r.video ?? '',
-      i24: r.i24 ?? '',
-      destacado: (r.destacado ?? true)
-    }));
-  },
+        if (error) {
+          console.warn('Supabase list error', error);
+          return [];
+        }
+        return (Array.isArray(data) ? data : []).map(r => ({
+          id: r.id,
+          titulo: r.titulo ?? '',
+          desc: r.desc ?? '',
+          precio: Number(r.precio ?? 0),
+          tipo: r.tipo ?? '',
+          estado: r.estado ?? '',
+          ciudad: r.ciudad ?? '',
+          colonia: r.colonia ?? '',
+          m2: Number(r.m2 ?? 0),
+          rec: Number(r.rec ?? 0),
+          ban: Number(r.ban ?? 0),
+          est: Number(r.est ?? 0),
+          img: r.img ?? '',
+          video: r.video ?? '',
+          i24: r.i24 ?? '',
+          destacado: (r.destacado ?? true)
+        }));
+      },
 
-  async upsert(obj){
-    if(!sb) return;
+      async upsert(obj){
+        if(!sb) return;
 
-    const row = {
-      id: obj.id || null,                     // si es nuevo lo borramos abajo
-      titulo: obj.titulo ?? null,
-      desc: obj.desc ?? null,
-      precio: obj.precio != null ? Number(obj.precio) : null,
-      tipo: obj.tipo ?? null,
-      estado: obj.estado ?? null,
-      ciudad: obj.ciudad ?? null,
-      colonia: obj.colonia ?? null,
-      m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
-      rec: obj.rec != null ? parseInt(obj.rec,10) : null,
-      ban: obj.ban != null ? parseInt(obj.ban,10) : null,
-      est: obj.est != null ? parseInt(obj.est,10) : null,
-      img: obj.img ?? null,
-      video: obj.video || null,
-      i24: obj.i24 || null,
-      destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
+        const row = {
+          id: obj.id || null,
+          titulo: obj.titulo ?? null,
+          desc: obj.desc ?? null,
+          precio: obj.precio != null ? Number(obj.precio) : null,
+          tipo: obj.tipo ?? null,
+          estado: obj.estado ?? null,
+          ciudad: obj.ciudad ?? null,
+          colonia: obj.colonia ?? null,
+          m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
+          rec: obj.rec != null ? parseInt(obj.rec,10) : null,
+          ban: obj.ban != null ? parseInt(obj.ban,10) : null,
+          est: obj.est != null ? parseInt(obj.est,10) : null,
+          img: obj.img ?? null,
+          video: obj.video || null,
+          i24: obj.i24 || null,
+          destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
+        };
+
+        const { error } = await sb.from('properties').upsert(row, { onConflict:'id' });
+        if (error) { console.error('Supabase upsert error:', error); throw error; }
+      },
+
+      async remove(id){
+        if(!sb) return;
+        const { error } = await sb.from('properties').delete().eq('id', id);
+        if (error) { console.error('Supabase delete error:', error); throw error; }
+      }
     };
-
-    // ✅ si es nuevo, deja que Postgres genere el id
-    if (!row.id) delete row.id;
-
-    const { data, error } = await sb
-      .from('properties')
-      .upsert(row)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase upsert error:', error);
-      throw error;
-    }
-
-    // si era nuevo, trae de vuelta el id generado
-    if (!obj.id && data?.id) obj.id = data.id;
-  },
-
-  async remove(id){
-    if(!sb) return;
-    const { error } = await sb.from('properties').delete().eq('id', id);
-    if (error) { console.error('Supabase delete error:', error); throw error; }
-  }
-};
-</script>
 
     // Año en footer
     $$('#yy').textContent = new Date().getFullYear();
@@ -423,7 +422,6 @@ const RemoteStore = {
     let INVENTARIO = [];
     const LS_KEY = 'meroci:props';
     try{ localStorage.removeItem(LS_KEY); }catch(e){}
-    // <- no-op para compatibilidad con llamadas existentes
     function persistOnlyCustom(){ /* sin uso; compatibilidad UI */ }
 
     async function syncFromRemote(){
@@ -432,97 +430,36 @@ const RemoteStore = {
       INVENTARIO = Array.isArray(remote) ? remote : [];
     }
 
-    // ==== LISTADO ====
+    // ==== LISTADO (con imagen segura) ====
     function render(list){
-  elCards.innerHTML = '';
-  if(!list.length){
-    elCards.innerHTML = '<div class="svc" style="grid-column:1/-1;text-align:center">Sin resultados. Ajusta filtros o <a href="#contacto">contáctanos</a>.</div>';
-    return;
-  }
+      elCards.innerHTML='';
+      if(!list.length){
+        elCards.innerHTML='<div class="svc" style="grid-column:1/-1;text-align:center">Sin resultados. Ajusta filtros o <a href="#contacto">contáctanos</a>.</div>';
+        return;
+      }
+      list.forEach(p=>{
+        const card=document.createElement('article'); card.className='card';
+        const videoBadge = p.video? '<div class="chip">🎬 Video</div>' : '';
+        const imgSrc = safeSrc(p.img);
+        const titulo = esc(p.titulo);
 
-  list.forEach(p=>{
-    const card = document.createElement('article');
-    card.className = 'card';
-
-    // --- thumb (imagen + chips)
-    const thumb = document.createElement('div');
-    thumb.className = 'thumb';
-
-    const img = document.createElement('img');
-    // src seguro (si no hay URL válida, no seteamos src para evitar 404 raros tipo %7Bp.img%7D)
-    const imgUrl = (p.img || '').trim();
-    if (imgUrl && /^https?:\/\//i.test(imgUrl)) {
-      img.src = imgUrl;
+        card.innerHTML=`
+          <div class="thumb">
+            <img src="${imgSrc}" alt="${titulo}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'">
+            <div class="chip">${esc(p.tipo)}</div>${videoBadge}
+          </div>
+          <div class="card-body">
+            <div class="price">${money(p.precio)}</div>
+            <div style="font-weight:700">${titulo}</div>
+            <div class="meta">${esc(p.ciudad)} • ${esc(p.colonia)} • ${p.m2} m² • ${p.rec} rec • ${p.ban} baño(s)</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn primary" data-open="${p.id}">Ver detalles</button>
+            <a class="btn ghost" href="https://wa.me/525530297418?text=Hola%20MEROCI,%20quiero%20información%20sobre:%20${encodeURIComponent(p.titulo)}" target="_blank" rel="noopener">WhatsApp</a>
+          </div>`;
+        elCards.appendChild(card);
+      });
     }
-    img.alt = p.titulo || '';
-    img.loading = 'lazy';
-    img.referrerPolicy = 'no-referrer';
-    img.onerror = () => {
-      // si falla, ocultamos la imagen para que la tarjeta no se rompa
-      img.style.display = 'none';
-      // opcional: podrías poner un fondo neutro:
-      // thumb.style.background = '#f3f4f6';
-    };
-    thumb.appendChild(img);
-
-    const tipoChip = document.createElement('div');
-    tipoChip.className = 'chip';
-    tipoChip.textContent = p.tipo || '';
-    thumb.appendChild(tipoChip);
-
-    if (p.video){
-      const videoChip = document.createElement('div');
-      videoChip.className = 'chip';
-      videoChip.textContent = '🎬 Video';
-      videoChip.style.left = 'auto';
-      videoChip.style.right = '10px';
-      thumb.appendChild(videoChip);
-    }
-
-    // --- body
-    const body = document.createElement('div');
-    body.className = 'card-body';
-
-    const price = document.createElement('div');
-    price.className = 'price';
-    price.textContent = money(p.precio);
-    body.appendChild(price);
-
-    const title = document.createElement('div');
-    title.style.fontWeight = '700';
-    title.textContent = p.titulo || '';
-    body.appendChild(title);
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = `${p.ciudad||''} • ${p.colonia||''} • ${p.m2||0} m² • ${p.rec||0} rec • ${p.ban||0} baño(s)`;
-    body.appendChild(meta);
-
-    // --- acciones
-    const actions = document.createElement('div');
-    actions.className = 'card-actions';
-
-    const btnVer = document.createElement('button');
-    btnVer.className = 'btn primary';
-    btnVer.textContent = 'Ver detalles';
-    btnVer.setAttribute('data-open', p.id);
-    actions.appendChild(btnVer);
-
-    const btnWa = document.createElement('a');
-    btnWa.className = 'btn ghost';
-    btnWa.target = '_blank';
-    btnWa.rel = 'noopener';
-    btnWa.href = `https://wa.me/525530297418?text=Hola%20MEROCI,%20quiero%20información%20sobre:%20${encodeURIComponent(p.titulo||'propiedad')}`;
-    btnWa.textContent = 'WhatsApp';
-    actions.appendChild(btnWa);
-
-    // --- ensamblar card
-    card.appendChild(thumb);
-    card.appendChild(body);
-    card.appendChild(actions);
-    elCards.appendChild(card);
-  });
-}
 
     function applyFilters(){
       const q=(elQ.value||'').toLowerCase(), tipo=elTipo.value, estado=elEstado.value, ciudad=elCiudad.value;
@@ -534,10 +471,38 @@ const RemoteStore = {
     }
     [elQ,elTipo,elEstado,elCiudad,elMin,elMax].forEach(el=> el.addEventListener('input', applyFilters));
 
-    // ==== MODAL DE PROPIEDAD ====
+    // ==== MODAL DE PROPIEDAD (con imagen segura) ====
     const modal=$$('#modal'), mImg=$$('#m-img'), mVideo=$$('#m-video');
-    function openModal(id){ const p=INVENTARIO.find(x=>x.id===id); if(!p) return; $$('#m-title').textContent=p.titulo; mImg.src=p.img; mImg.style.display=p.video?'none':'block'; mVideo.src=p.video||''; mVideo.style.display=p.video?'block':'none'; $$('#m-price').textContent=money(p.precio); $$('#m-meta').textContent=`${p.ciudad} • ${p.colonia} • ${p.m2} m² • ${p.rec} rec • ${p.ban} baño(s)`; $$('#m-desc').textContent=p.desc||''; const whatsVisita=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero agendar visita para: '+p.titulo)}`; const whatsInfo=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero más información de: '+p.titulo)}`; $$('#m-whats').href=whatsVisita; const more=$$('#m-more'); more.href=whatsInfo; const mi24=$$('#m-i24'); if(p.i24){ mi24.style.display='inline-flex'; mi24.href=p.i24; } else { mi24.style.display='none'; mi24.removeAttribute('href'); }
-      const tags=$$('#m-tags'); tags.innerHTML=''; ['Estado: '+(p.estado||''),'Ubicación: '+p.ciudad,'Tipo: '+p.tipo, p.m2+' m²'].forEach(t=>{ const b=document.createElement('span'); b.className='chip'; b.textContent=t; tags.appendChild(b); }); modal.showModal(); }
+    function openModal(id){
+      const p=INVENTARIO.find(x=>x.id===id); if(!p) return;
+      $$('#m-title').textContent=p.titulo;
+      // Imagen
+      mImg.onerror = null;
+      mImg.src = safeSrc(p.img);
+      mImg.onerror = ()=>{ mImg.onerror=null; mImg.src = FALLBACK_IMG; };
+      mImg.style.display = p.video ? 'none' : 'block';
+      // Video
+      mVideo.src = p.video || '';
+      mVideo.style.display = p.video ? 'block' : 'none';
+      // Meta
+      $$('#m-price').textContent=money(p.precio);
+      $$('#m-meta').textContent=`${p.ciudad} • ${p.colonia} • ${p.m2} m² • ${p.rec} rec • ${p.ban} baño(s)`;
+      $$('#m-desc').textContent=p.desc||'';
+      // Acciones
+      const whatsVisita=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero agendar visita para: '+p.titulo)}`;
+      const whatsInfo=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero más información de: '+p.titulo)}`;
+      $$('#m-whats').href=whatsVisita;
+      const more=$$('#m-more'); more.href=whatsInfo;
+      const mi24=$$('#m-i24');
+      if(p.i24){ mi24.style.display='inline-flex'; mi24.href=p.i24; }
+      else { mi24.style.display='none'; mi24.removeAttribute('href'); }
+      // Tags
+      const tags=$$('#m-tags'); tags.innerHTML='';
+      ['Estado: '+(p.estado||''),'Ubicación: '+p.ciudad,'Tipo: '+p.tipo, p.m2+' m²'].forEach(t=>{
+        const b=document.createElement('span'); b.className='chip'; b.textContent=t; tags.appendChild(b);
+      });
+      modal.showModal();
+    }
     function closeModal(){ modal.close(); }
     window.openModal=openModal; window.closeModal=closeModal;
 
@@ -556,12 +521,11 @@ const RemoteStore = {
     function mostrarForm(data){ $$('#admin-form').style.display='block'; $$('#form-title').textContent=data?'Editar propiedad':'Nueva propiedad'; editId=data?data.id:null; f.id.value=data?data.id:''; f.titulo.value=data?data.titulo:''; f.tipo.value=data?data.tipo:'Casa'; f.estado.value=data?data.estado:'Ciudad de México'; f.estado.dispatchEvent(new Event('change')); f.ciudad.value=data?data.ciudad:'Cuauhtémoc'; f.colonia.value=data?data.colonia:''; f.precio.value=data?data.precio:''; f.m2.value=data?data.m2:''; f.rec.value=data?data.rec:''; f.ban.value=data?data.ban:''; f.est.value=data?data.est:''; f.img.value=data?data.img:''; f.video.value=data?data.video:''; f.i24.value=data?(data.i24||''):''; f.desc.value=data?data.desc:''; f.destacado.checked=data?!!data.destacado:true; }
     function ocultarForm(){ $$('#admin-form').style.display='none'; editId=null; }
 
-    function renderTabla(){ tbody.innerHTML=''; INVENTARIO.forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${p.titulo}</td><td style="border-bottom:1px solid #eee">${p.tipo}</td><td style="border-bottom:1px solid #eee">${p.estado||''} / ${p.ciudad||''} / ${p.colonia||''}</td><td style="border-bottom:1px solid #eee">${money(p.precio)}</td><td style="border-bottom:1px solid #eee">${p.destacado?'Sí':'No'}</td><td style="border-bottom:1px solid #eee"><button class="btn ghost" data-editar="${p.id}">Editar</button> <button class="btn primary" data-eliminar="${p.id}">Eliminar</button></td>`; tbody.appendChild(tr); }); $$$('[data-editar]',tbody).forEach(b=> b.addEventListener('click',()=>{ const p=INVENTARIO.find(x=>x.id===b.getAttribute('data-editar')); mostrarForm(p); })); $$$('[data-eliminar]',tbody).forEach(b=> b.addEventListener('click',async ()=>{ const id=b.getAttribute('data-eliminar'); if(confirm('¿Eliminar esta propiedad?')){ INVENTARIO=INVENTARIO.filter(p=>p.id!==id); persistOnlyCustom(); if(RemoteStore.enabled()) await RemoteStore.remove(id); renderTabla(); applyFilters(); } })); }
+    function renderTabla(){ tbody.innerHTML=''; INVENTARIO.forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${esc(p.titulo)}</td><td style="border-bottom:1px solid #eee">${esc(p.tipo)}</td><td style="border-bottom:1px solid #eee">${esc(p.estado||'')} / ${esc(p.ciudad||'')} / ${esc(p.colonia||'')}</td><td style="border-bottom:1px solid #eee">${money(p.precio)}</td><td style="border-bottom:1px solid #eee">${p.destacado?'Sí':'No'}</td><td style="border-bottom:1px solid #eee"><button class="btn ghost" data-editar="${p.id}">Editar</button> <button class="btn primary" data-eliminar="${p.id}">Eliminar</button></td>`; tbody.appendChild(tr); }); $$$('[data-editar]',tbody).forEach(b=> b.addEventListener('click',()=>{ const p=INVENTARIO.find(x=>x.id===b.getAttribute('data-editar')); mostrarForm(p); })); $$$('[data-eliminar]',tbody).forEach(b=> b.addEventListener('click',async ()=>{ const id=b.getAttribute('data-eliminar'); if(confirm('¿Eliminar esta propiedad?')){ INVENTARIO=INVENTARIO.filter(p=>p.id!==id); persistOnlyCustom(); if(RemoteStore.enabled()) await RemoteStore.remove(id); renderTabla(); applyFilters(); } })); }
 
     let editId=null;
     $$('#nuevo-btn').addEventListener('click',()=> mostrarForm());
     $$('#cancelar-prop').addEventListener('click',()=> ocultarForm());
-    // <<< FIJADO: usar $$ (no jQuery) y mantener compatibilidad
     $$('#guardar-prop').addEventListener('click', async ()=>{
       const obj = {
         id: editId || null,
@@ -757,8 +721,6 @@ const RemoteStore = {
         if(btn){ openModal(btn.getAttribute('data-open')); }
       });
     }
-
-    // <<< FIJADO: ahora sí llamamos init al cargar el DOM
     document.addEventListener('DOMContentLoaded', init);
 
     // ==== PRUEBAS RÁPIDAS (no invasivas) ====
