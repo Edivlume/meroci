@@ -1,43 +1,124 @@
-// municipios-live.js
-// Rellena CATALOGOS consultando INEGI en tiempo real (100%) sin archivo local.
-// Requiere que exista window.CATALOGOS con { estados:[], ciudades:{} }.
-
-(async function(){
-  const ENTIDADES = [
-    ["01","Aguascalientes"],["02","Baja California"],["03","Baja California Sur"],
-    ["04","Campeche"],["05","Coahuila"],["06","Colima"],["07","Chiapas"],
-    ["08","Chihuahua"],["09","Ciudad de México"],["10","Durango"],["11","Guanajuato"],
-    ["12","Guerrero"],["13","Hidalgo"],["14","Jalisco"],["15","México"],
-    ["16","Michoacán"],["17","Morelos"],["18","Nayarit"],["19","Nuevo León"],
-    ["20","Oaxaca"],["21","Puebla"],["22","Querétaro"],["23","Quintana Roo"],
-    ["24","San Luis Potosí"],["25","Sinaloa"],["26","Sonora"],["27","Tabasco"],
-    ["28","Tamaulipas"],["29","Tlaxcala"],["30","Veracruz"],["31","Yucatán"],["32","Zacatecas"]
-  ];
-  const BASE = "https://www.inegi.org.mx/app/ageeml/api/ageeml/municipios";
-
-  async function fetchMun(ent){
-    const url = `${BASE}?entidad=${ent}&formato=json`;
-    const r = await fetch(url);
-    if(!r.ok) throw new Error(`INEGI ${ent} ${r.status}`);
-    const data = await r.json();
-    return (data?.municipios || data || [])
-      .map(x => x.NOM_MUN || x.nom_mun || x.nombre || x.NOM_MUNICIPIO || x.municipio)
-      .filter(Boolean).map(s=>s.normalize("NFC"))
-      .sort((a,b)=> a.localeCompare(b,'es'));
+{
+  "estados": [
+    "Ciudad de México",
+    "Estado de México",
+    "Morelos",
+    "Querétaro",
+    "Guerrero"
+  ],
+  "ciudades": {
+    "Ciudad de México": [
+      "Álvaro Obregón",
+      "Azcapotzalco",
+      "Benito Juárez",
+      "Coyoacán",
+      "Cuajimalpa de Morelos",
+      "Cuauhtémoc",
+      "Gustavo A. Madero",
+      "Iztacalco",
+      "Iztapalapa",
+      "La Magdalena Contreras",
+      "Miguel Hidalgo",
+      "Milpa Alta",
+      "Tláhuac",
+      "Tlalpan",
+      "Venustiano Carranza",
+      "Xochimilco"
+    ],
+    "Estado de México": [
+      "Atizapán de Zaragoza",
+      "Coacalco de Berriozábal",
+      "Cuautitlán Izcalli",
+      "Huixquilucan",
+      "Isidro Fabela",
+      "Naucalpan de Juárez",
+      "Nicolás Romero",
+      "Ocoyoacac",
+      "Tlalnepantla de Baz",
+      "Tultepec",
+      "Tultitlán",
+      "Chalco",
+      "Ixtapaluca",
+      "La Paz",
+      "Nezahualcóyotl",
+      "Texcoco",
+      "Tepetlaoxtoc",
+      "Chicoloapan",
+      "Chimalhuacán",
+      "Valle de Chalco Solidaridad",
+      "Tenango del Aire",
+      "Temamatla",
+      "Tlalmanalco",
+      "Amecameca",
+      "Ayapango",
+      "Juchitepec",
+      "Ozumba",
+      "Tepetlixpa",
+      "Xalatlaco",
+      "Ocuilan",
+      "Lerma"
+    ],
+    "Morelos": [
+      "Amacuzac",
+      "Atlatlahucan",
+      "Axochiapan",
+      "Ayala",
+      "Coatetelco",
+      "Coatlán del Río",
+      "Cuautla",
+      "Cuernavaca",
+      "Emiliano Zapata",
+      "Huitzilac",
+      "Hueyapan",
+      "Jantetelco",
+      "Jiutepec",
+      "Jojutla",
+      "Jonacatepec de Leandro Valle",
+      "Mazatepec",
+      "Miacatlán",
+      "Ocuituco",
+      "Puente de Ixtla",
+      "Temixco",
+      "Tepalcingo",
+      "Tepoztlán",
+      "Tetecala",
+      "Tetela del Volcán",
+      "Tlalnepantla",
+      "Tlaltizapán de Zapata",
+      "Tlaquiltenango",
+      "Tlayacapan",
+      "Totolapan",
+      "Xochitepec",
+      "Xoxocotla",
+      "Yautepec",
+      "Yecapixtla",
+      "Zacatepec",
+      "Zacualpan de Amilpas",
+      "Temoac"
+    ],
+    "Querétaro": [
+      "Amealco de Bonfil",
+      "Arroyo Seco",
+      "Cadereyta de Montes",
+      "Colón",
+      "Corregidora",
+      "El Marqués",
+      "Ezequiel Montes",
+      "Huimilpan",
+      "Jalpan de Serra",
+      "Landa de Matamoros",
+      "Pedro Escobedo",
+      "Peñamiller",
+      "Pinal de Amoles",
+      "Querétaro",
+      "San Joaquín",
+      "San Juan del Río",
+      "Tequisquiapan",
+      "Tolimán"
+    ],
+    "Guerrero": [
+      "Acapulco de Juárez"
+    ]
   }
+}
 
-  if(!window.CATALOGOS) window.CATALOGOS = { estados: [], ciudades: {} };
-  CATALOGOS.estados = ENTIDADES.map(e=>e[1]);
-
-  for(const [cve, nombre] of ENTIDADES){
-    try{
-      CATALOGOS.ciudades[nombre] = await fetchMun(cve);
-    }catch(e){
-      console.warn('INEGI municipios error', nombre, e.message);
-      CATALOGOS.ciudades[nombre] = CATALOGOS.ciudades[nombre] || [];
-    }
-  }
-
-  // Dispara evento para quien quiera re-renderizar selects
-  document.dispatchEvent(new CustomEvent('catalogos:listos'));
-})();
