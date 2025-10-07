@@ -188,7 +188,7 @@
     <div class="wrap">
       <div class="section-head"><div><h2>Hablemos</h2><p>Cuéntanos qué buscas o publica tu propiedad.</p></div></div>
       <div class="grid" style="grid-template-columns:1.1fr .9fr">
-<form id="contactForm" class="svc" style="box-shadow:var(--shadow)">
+<form id="contactForm" class="svc" style="box-shadow:var(--shadow)" action="javascript:void(0)">
   <label class="field" style="margin-bottom:10px"><input name="name" placeholder="Nombre*" required></label>
   <label class="field" style="margin-bottom:10px"><input name="email" type="email" placeholder="Email*" required></label>
   <label class="field" style="margin-bottom:10px"><input name="phone" placeholder="Teléfono*" required></label>
@@ -405,7 +405,7 @@
           if (error) { console.error('update error', error); throw error; }
           return obj.id;
         }
-      },
+      };
                   
     // Año en footer
     $$('#yy').textContent = new Date().getFullYear();
