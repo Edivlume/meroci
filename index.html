@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- Persistencia remota opcional (Supabase) -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{ --primary:#8c2f3d; --primary-600:#a33a4a; --primary-700:#742635; --accent:#e8d7db; --ink:#1f2937; --muted:#6b7280; --bg:#ffffff; --card:#ffffff; --shadow:0 10px 30px rgba(0,0,0,.08); --radius:18px; }
@@ -16,13 +16,9 @@
     html,body{margin:0;padding:0;font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
     a{color:var(--primary);text-decoration:none}
     img{max-width:100%;display:block}
-
-    /* NAV */
     .nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:saturate(120%) blur(8px);border-bottom:1px solid #f1f1f1}
     .nav-inner{max-width:1200px;margin:auto;display:flex;gap:24px;align-items:center;justify-content:space-between;padding:14px 20px}
     .brand{display:flex;align-items:center;gap:12px;font-weight:700}
-    .brand-logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--primary-600));color:#fff;font-weight:800}
-    .brand small{display:block;font-weight:600;color:var(--muted);letter-spacing:.08em}
     .menu{display:flex;gap:18px;flex-wrap:wrap}
     .menu a{padding:10px 12px;border-radius:12px;font-weight:600;color:var(--ink)}
     .menu a:hover{background:#f7f7f8}
@@ -32,24 +28,15 @@
     .btn.primary:hover{background:var(--primary-700);transform:translateY(-1px)}
     .btn.ghost{background:#fff;color:var(--primary);border:2px solid var(--primary);box-shadow:none}
     .btn.ghost:hover{background:var(--accent)}
-
-    /* HERO */
     .hero{position:relative;isolation:isolate}
     .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(1200px 600px at 60% -10%, #f2e6e9, transparent 60%), linear-gradient(180deg, #ffffff, #f6edf0 55%, #ffffff 100%);z-index:-1;pointer-events:none}
     .hero-inner{max-width:1200px;margin:auto;padding:88px 20px 40px;display:grid;grid-template-columns:1.2fr .8fr;gap:40px}
     .hero .badge{background:var(--primary);color:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:800;box-shadow:0 6px 20px rgba(140,47,61,.25);display:inline-block;margin-bottom:14px}
-    .hero h1{font-size:clamp(36px,5vw,64px);line-height:1.03;margin:0;color:#2b2f38}
-    .hero p{font-size:clamp(16px,2.1vw,20px);color:var(--muted)}
-    .hero-card{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:var(--shadow);display:flex;gap:14px;align-items:center}
-
-    /* LAYOUT */
     section{padding:56px 20px}
     .wrap{max-width:1200px;margin:auto}
     .section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px;gap:20px}
     .section-head h2{font-size:clamp(24px,3vw,36px);margin:0}
     .section-head p{color:var(--muted);margin:0}
-
-    /* LISTADO */
     .filters{display:grid;grid-template-columns:repeat(6, minmax(0,1fr));gap:12px;margin:14px 0 26px}
     .field{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px}
     .field input,.field select,.field textarea{border:0;outline:0;width:100%;font:inherit}
@@ -61,29 +48,20 @@
     .price{font-weight:800;font-size:20px}
     .meta{color:var(--muted);font-size:14px}
     .card-actions{display:flex;gap:10px;padding:12px 16px 16px}
-
-    /* SERVICIOS/EQUIPO */
     .services{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:18px;margin-top:18px}
     .svc{background:var(--card);padding:18px;border-radius:16px;box-shadow:var(--shadow)}
     .team{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:18px}
     .agent{display:flex;gap:14px;background:var(--card);padding:16px;border-radius:16px;box-shadow:var(--shadow);align-items:center}
     .avatar{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary-600));color:#fff;display:grid;place-items:center;font-weight:900}
-
-    /* FOOTER */
     footer{background:#0f1115;color:#e5e7eb}
     .foot{max-width:1200px;margin:auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;padding:36px 20px}
     .foot a{color:#e5e7eb}
     .copy{padding:12px 20px;border-top:1px solid rgba(255,255,255,.1);text-align:center;color:#9ca3af}
-
-    /* MODALES */
     dialog{border:0;border-radius:18px;max-width:980px;width:96%;padding:0;overflow:hidden;box-shadow:0 20px 80px rgba(0,0,0,.25)}
     .modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #eee}
     .modal-body{display:grid;grid-template-columns:1.1fr .9fr}
     .modal-body .col{padding:16px}
     .gallery{aspect-ratio:16/10;border-radius:12px;overflow:hidden}
-    .gallery img, .gallery video{width:100%;height:100%;object-fit:cover}
-
-    /* REVIEWS */
     .reviews{position:relative}
     .reviews-viewport{overflow:hidden}
     .reviews-track{display:flex;gap:16px;transition:transform .5s ease}
@@ -100,19 +78,15 @@
     .rev-dots{display:flex;gap:8px;justify-content:center;margin-top:12px}
     .rev-dots button{width:8px;height:8px;border-radius:999px;border:0;background:#e5e7eb}
     .rev-dots button.active{background:var(--primary)}
-
-    /* RESPONSIVE */
     @media (max-width:1024px){ .grid{grid-template-columns:repeat(2, minmax(0,1fr))} .services{grid-template-columns:repeat(2, minmax(0,1fr))} .hero-inner{grid-template-columns:1fr} .modal-body{grid-template-columns:1fr} .review{min-width:calc(50% - 8px)} }
     @media (max-width:640px){ .menu{display:none} .filters{grid-template-columns:repeat(2, minmax(0,1fr))} .grid{grid-template-columns:1fr} .team{grid-template-columns:1fr} .foot{grid-template-columns:1fr} .review{min-width:100%} }
   </style>
 </head>
 <body>
+  <!-- NAV -->
   <header class="nav">
     <div class="nav-inner">
-      <a class="brand" href="#">
-  <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
-  <div>MEROCI<br><small>ASESORAS INMOBILIARIAS</small></div>
-</a>
+      <a class="brand" href="#"><img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;"><div>MEROCI<br><small>ASESORAS INMOBILIARIAS</small></div></a>
       <nav class="menu">
         <a href="#propiedades">Propiedades</a>
         <a href="#servicios">Servicios</a>
@@ -128,13 +102,17 @@
     </div>
   </header>
 
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-inner">
       <div>
         <span class="badge">Confianza • Claridad • Cierre</span>
         <h1>Encuentra tu próximo hogar <span style="color:var(--primary)">con MEROCI</span></h1>
-        <p>Somos asesoras inmobiliarias que acompañan todo el proceso: valoración, promoción, negociación y firma. Publica con nosotras o descubre propiedades verificadas.</p>
-        <div class="hero-card" style="align-items:center;gap:16px"><div style="font-weight:800;display:flex;align-items:center;gap:8px">🔎 Búsqueda asistida</div><span style="color:var(--muted)">Cuéntanos qué necesitas y te enviamos opciones en horas.</span></div>
+        <p>Somos asesoras inmobiliarias que acompañan todo el proceso: valoración, promoción, negociación y firma.</p>
+        <div class="hero-card" style="align-items:center;gap:16px">
+          <div style="font-weight:800;display:flex;align-items:center;gap:8px">🔎 Búsqueda asistida</div>
+          <span style="color:var(--muted)">Cuéntanos qué necesitas y te enviamos opciones en horas.</span>
+        </div>
       </div>
       <div>
         <div class="hero-card">
@@ -147,6 +125,7 @@
     </div>
   </section>
 
+  <!-- LISTADO -->
   <section id="propiedades">
     <div class="wrap">
       <div class="section-head"><div><h2>Propiedades destacadas</h2><p>Filtra por tipo, estado, ciudad y presupuesto.</p></div></div>
@@ -162,6 +141,7 @@
     </div>
   </section>
 
+  <!-- SERVICIOS -->
   <section id="servicios" style="background:linear-gradient(0deg,#fff, #fff 60%, #f9f5f6);">
     <div class="wrap">
       <div class="section-head"><div><h2>Servicios</h2><p>Soluciones integrales para vender, comprar o rentar.</p></div></div>
@@ -174,6 +154,7 @@
     </div>
   </section>
 
+  <!-- EQUIPO -->
   <section id="equipo">
     <div class="wrap">
       <div class="section-head"><div><h2>Nuestro equipo</h2><p>Atención cercana y resultados.</p></div></div>
@@ -184,40 +165,47 @@
     </div>
   </section>
 
+  <!-- CONTACTO -->
   <section id="contacto" style="background:#faf7f8">
     <div class="wrap">
       <div class="section-head"><div><h2>Hablemos</h2><p>Cuéntanos qué buscas o publica tu propiedad.</p></div></div>
       <div class="grid" style="grid-template-columns:1.1fr .9fr">
-<form id="contactForm" class="svc" style="box-shadow:var(--shadow)">
-  <label class="field" style="margin-bottom:10px"><input name="name" placeholder="Nombre*" required></label>
-  <label class="field" style="margin-bottom:10px"><input name="email" type="email" placeholder="Email*" required></label>
-  <label class="field" style="margin-bottom:10px"><input name="phone" placeholder="Teléfono*" required></label>
-  <label class="field" style="margin-bottom:10px">
-    <select name="interes" required>
-      <option value="">¿Qué te interesa?</option>
-      <option>Comprar</option><option>Vender</option><option>Rentar</option>
-    </select>
-  </label>
-  <label class="field" style="margin-bottom:10px"><input name="zona" placeholder="Zona de interés / Colonia"></label>
-  <label class="field" style="margin-bottom:10px"><input name="presupuesto" placeholder="Presupuesto (MXN)"></label>
-  <label class="field" style="margin-bottom:10px"><textarea name="message" rows="4" placeholder="Cuéntanos más"></textarea></label>
-  <div style="display:flex;gap:12px;flex-wrap:wrap">
-    <button class="btn primary" type="submit">Enviar</button>
-    <a class="btn ghost" href="mailto:meroci1629@gmail.com">Escribir por correo</a>
-  </div>
-  <p style="color:var(--muted);margin-top:10px">También puedes escribirnos a <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p>
-</form>
-<p id="contactOk" style="display:none;color:green;margin-top:10px">
-  ¡Gracias! Recibimos tu mensaje y te contactamos pronto.
-</p>
-<p id="contactErr" style="display:none;color:#b91c1c;margin-top:10px">
-  Ocurrió un error. Intenta de nuevo o escríbenos por correo.
-</p>
-        <div class="svc" style="box-shadow:var(--shadow)"><h3 style="margin-top:0">Oficinas</h3><p style="color:var(--muted)">Atendemos CDMX y zonas conurbadas. Citas previa agenda.</p><div style="display:grid;gap:8px"><div class="hero-card"><strong>Teléfono</strong><span>55 3029 7418 • 55 5414 9125</span></div><div class="hero-card"><strong>Correo</strong><span>meroci1629@gmail.com</span></div><div class="hero-card"><strong>Horario</strong><span>Lunes a sábado · 9:00–19:00</span></div></div></div>
+        <form id="contactForm" class="svc" style="box-shadow:var(--shadow)">
+          <label class="field" style="margin-bottom:10px"><input name="name" placeholder="Nombre*" required></label>
+          <label class="field" style="margin-bottom:10px"><input name="email" type="email" placeholder="Email*" required></label>
+          <label class="field" style="margin-bottom:10px"><input name="phone" placeholder="Teléfono*" required></label>
+          <label class="field" style="margin-bottom:10px">
+            <select name="interes" required>
+              <option value="">¿Qué te interesa?</option>
+              <option>Comprar</option><option>Vender</option><option>Rentar</option>
+            </select>
+          </label>
+          <label class="field" style="margin-bottom:10px"><input name="zona" placeholder="Zona de interés / Colonia"></label>
+          <label class="field" style="margin-bottom:10px"><input name="presupuesto" placeholder="Presupuesto (MXN)"></label>
+          <label class="field" style="margin-bottom:10px"><textarea name="message" rows="4" placeholder="Cuéntanos más"></textarea></label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn primary" type="submit">Enviar</button>
+            <a class="btn ghost" href="mailto:meroci1629@gmail.com">Escribir por correo</a>
+          </div>
+          <p style="color:var(--muted);margin-top:10px">También puedes escribirnos a <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p>
+        </form>
+        <p id="contactOk" style="display:none;color:green;margin-top:10px">¡Gracias! Recibimos tu mensaje y te contactamos pronto.</p>
+        <p id="contactErr" style="display:none;color:#b91c1c;margin-top:10px">Ocurrió un error. Intenta de nuevo o escríbenos por correo.</p>
+
+        <div class="svc" style="box-shadow:var(--shadow)">
+          <h3 style="margin-top:0">Oficinas</h3>
+          <p style="color:var(--muted)">Atendemos CDMX y zonas conurbadas. Citas previa agenda.</p>
+          <div style="display:grid;gap:8px">
+            <div class="hero-card"><strong>Teléfono</strong><span>55 3029 7418 • 55 5414 9125</span></div>
+            <div class="hero-card"><strong>Correo</strong><span>meroci1629@gmail.com</span></div>
+            <div class="hero-card"><strong>Horario</strong><span>Lunes a sábado · 9:00–19:00</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- TESTIMONIOS -->
   <section id="testimonios" style="background:#fff">
     <div class="wrap">
       <div class="section-head"><div><h2>Opiniones de clientes</h2><p>Experiencias reales y verificadas.</p></div></div>
@@ -230,19 +218,20 @@
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer>
     <div class="foot">
- <div class="brand" style="color:#fff">
-  <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
-  <div>MEROCI<br><small style="color:#e5e7eb">ASESORAS INMOBILIARIAS</small></div>
-</div>
-      <div><h4>Contacto</h4><p style="margin:6px 0">📞 55 3029 7418</p><p style="margin:6px 0">📞 55 5414 9125</p><p style="margin:6px 0">✉️ <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p><p style="margin:6px 0"><a href="https://www.inmuebles24.com/inmobiliarias/luz-lugo_50313017-inmuebles.html" target="_blank" rel="noopener">Perfil en Inmuebles24</a></p></div>
-      <div><h4>Enlaces</h4><p><a href="#propiedades">Propiedades</a></p><p><a href="#servicios">Servicios</a></p><p><a href="#equipo">Equipo</a></p><p><a href="#contacto">Contacto</a></p></div>
+      <div class="brand" style="color:#fff">
+        <img src="logo-meroci.png" alt="Logo MEROCI" style="width:42px;height:42px;border-radius:12px;">
+        <div>MEROCI<br><small style="color:#e5e7eb">ASESORAS INMOBILIARIAS</small></div>
+      </div>
+      <div><h4>Contacto</h4><p style="margin:6px 0">📞 55 3029 7418</p><p style="margin:6px 0">📞 55 5414 9125</p><p style="margin:6px 0">✉️ <a href="mailto:meroci1629@gmail.com">meroci1629@gmail.com</a></p><p style="margin:6px 0"><a href="#propiedades">Propiedades</a></p></div>
+      <div><h4>Enlaces</h4><p><a href="#servicios">Servicios</a></p><p><a href="#equipo">Equipo</a></p><p><a href="#contacto">Contacto</a></p></div>
     </div>
     <div class="copy">© <span id="yy"></span> MEROCI. Todos los derechos reservados.</div>
   </footer>
 
-  <!-- Modal de propiedad -->
+  <!-- MODAL -->
   <dialog id="modal">
     <div class="modal-head"><strong id="m-title">Título</strong><button class="btn ghost" onclick="closeModal()">Cerrar</button></div>
     <div class="modal-body">
@@ -263,14 +252,31 @@
     </div>
   </dialog>
 
-  <!-- Panel de Administración -->
+  <!-- ADMIN -->
   <dialog id="admin">
-    <div class="modal-head"><strong>Administrador MEROCI</strong><button class="btn ghost" onclick="document.getElementById('admin').close()">Cerrar</button></div>
+    <div class="modal-head">
+      <strong>Administrador MEROCI</strong>
+      <button class="btn ghost" onclick="document.getElementById('admin').close()">Cerrar</button>
+    </div>
     <div class="modal-body" style="grid-template-columns:1fr">
       <div class="col">
-        <div id="admin-login" class="svc" style="margin-bottom:14px"><h3 style="margin-top:0">Ingresar</h3><label class="field" style="margin-bottom:10px"><input id="admin-user" placeholder="Usuario" value="admin"></label><label class="field" style="margin-bottom:10px"><input id="admin-pass" type="password" placeholder="Contraseña"></label><button class="btn primary" id="admin-login-btn">Entrar</button><p style="color:var(--muted);margin-top:8px">* Seguridad básica en el navegador. Para producción se recomienda backend.</p></div>
+        <div id="admin-login" class="svc" style="margin-bottom:14px">
+          <h3 style="margin-top:0">Ingresar</h3>
+          <label class="field" style="margin-bottom:10px"><input id="admin-user" placeholder="Usuario" value="admin"></label>
+          <label class="field" style="margin-bottom:10px"><input id="admin-pass" type="password" placeholder="Contraseña"></label>
+          <button class="btn primary" id="admin-login-btn">Entrar</button>
+          <p style="color:var(--muted);margin-top:8px">* Seguridad básica en el navegador. Para producción se recomienda backend.</p>
+        </div>
+
         <div id="admin-app" style="display:none">
-          <div class="hero-card" style="justify-content:space-between"><strong>Gestor de propiedades</strong><div style="display:flex;gap:8px"><button class="btn ghost" id="admin-logout-btn">Cerrar sesión</button><button class="btn primary" id="nuevo-btn">Nueva propiedad</button></div></div>
+          <div class="hero-card" style="justify-content:space-between">
+            <strong>Gestor de propiedades</strong>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost" id="admin-logout-btn">Cerrar sesión</button>
+              <button class="btn primary" id="nuevo-btn">Nueva propiedad</button>
+            </div>
+          </div>
+
           <div id="admin-form" class="svc" style="margin-top:12px;display:none">
             <h3 id="form-title" style="margin:0 0 10px">Nueva propiedad</h3>
             <div style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:10px">
@@ -291,9 +297,21 @@
             </div>
             <label class="field" style="margin:10px 0"><textarea id="f-desc" rows="3" placeholder="Descripción"></textarea></label>
             <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input id="f-destacado" type="checkbox" checked> Mostrar en Destacadas</label>
-            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" id="guardar-prop" type="button">Guardar</button><button class="btn ghost" id="cancelar-prop">Cancelar</button></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" id="guardar-prop">Guardar</button>
+              <button class="btn ghost" id="cancelar-prop">Cancelar</button>
+            </div>
           </div>
-          <div class="svc" style="margin-top:12px"><div style="overflow:auto"><table id="tabla" style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left"><th style="padding:8px">Título</th><th>Tipo</th><th>Ubicación</th><th>Precio</th><th>Destacado</th><th>Acciones</th></tr></thead><tbody></tbody></table></div></div>
+
+          <div class="svc" style="margin-top:12px">
+            <div style="overflow:auto">
+              <table id="tabla" style="width:100%;border-collapse:collapse">
+                <thead><tr style="text-align:left"><th style="padding:8px">Título</th><th>Tipo</th><th>Ubicación</th><th>Precio</th><th>Destacado</th><th>Acciones</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -304,211 +322,266 @@
     const $$ = (sel, ctx=document) => ctx.querySelector(sel);
     const $$$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     const money = v => '$' + Number(v||0).toLocaleString('es-MX') + ' MXN';
+    $$('#yy').textContent = new Date().getFullYear();
 
-    // ==== CONFIG REMOTA (opcional) ====
+    // ==== SUPABASE ====
     const SUPABASE_URL = "https://juottsbieeotqxcqrwdc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1b3R0c2JpZWVvdHF4Y3Fyd2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NDI2MTIsImV4cCI6MjA3NDIxODYxMn0.GkopvVnztEo6TPFL7Kg6sOl4ezlEmdgWEU3SLgujxcQ";
     let sb = null;
     try{ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } }catch(e){}
 
-    // ==== PERSISTENCIA REMOTA (campos en español) ====
-    const RemoteStore = {
-      enabled: ()=> !!sb,
-
-      async list(){
-        if(!sb) return [];
-        const { data, error } = await sb
-          .from('properties')
-          .select('*')
-          .order('created_at', { ascending:false });
-
-        if (error) {
-          console.warn('Supabase list error', error);
-          return [];
-        }
-        return (Array.isArray(data) ? data : []).map(r => ({
-          id: r.id,
-          titulo: r.titulo ?? '',
-          desc: r.desc ?? '',
-          precio: Number(r.precio ?? 0),
-          tipo: r.tipo ?? '',
-          estado: r.estado ?? '',
-          ciudad: r.ciudad ?? '',
-          colonia: r.colonia ?? '',
-          m2: Number(r.m2 ?? 0),
-          rec: Number(r.rec ?? 0),
-          ban: Number(r.ban ?? 0),
-          est: Number(r.est ?? 0),
-          img: r.img ?? '',
-          video: r.video ?? '',
-          i24: r.i24 ?? '',
-          destacado: (r.destacado ?? true)
-        }));
-      },
-
-      async upsert(obj){
-        if(!sb) return;
-
-        const row = {
-          id: obj.id || null,
-          titulo: obj.titulo ?? null,
-          desc: obj.desc ?? null,
-          precio: obj.precio != null ? Number(obj.precio) : null,
-          tipo: obj.tipo ?? null,
-          estado: obj.estado ?? null,
-          ciudad: obj.ciudad ?? null,
-          colonia: obj.colonia ?? null,
-          m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
-          rec: obj.rec != null ? parseInt(obj.rec,10) : null,
-          ban: obj.ban != null ? parseInt(obj.ban,10) : null,
-          est: obj.est != null ? parseInt(obj.est,10) : null,
-          img: obj.img ?? null,
-          video: obj.video || null,
-          i24: obj.i24 || null,
-          destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
-        };
-
-        const { error } = await sb.from('properties').upsert(row, { onConflict:'id' });
-        if (error) { console.error('Supabase upsert error:', error); throw error; }
-      },
-
-      async remove(id){
-        if(!sb) return;
-        const { error } = await sb.from('properties').delete().eq('id', id);
-        if (error) { console.error('Supabase delete error:', error); throw error; }
+    // ==== CATÁLOGOS (estado/ciudad) ====
+    const CATALOGOS = {
+      estados:["Aguascalientes","Baja California","Baja California Sur","Campeche","Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima","Durango","Guanajuato","Guerrero","Hidalgo","Jalisco","México","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","San Luis Potosí","Sinaloa","Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz","Yucatán","Zacatecas"],
+      ciudades:{
+        "Ciudad de México":["Álvaro Obregón","Azcapotzalco","Benito Juárez","Coyoacán","Cuajimalpa","Cuauhtémoc","Gustavo A. Madero","Iztacalco","Iztapalapa","La Magdalena Contreras","Miguel Hidalgo","Milpa Alta","Tláhuac","Tlalpan","Venustiano Carranza","Xochimilco"],
+        "México":["Ecatepec","Naucalpan","Tlalnepantla","Atizapán de Zaragoza","Toluca","Metepec","Cuautitlán Izcalli"],
+        "Jalisco":["Guadalajara","Zapopan","Tlaquepaque","Tlajomulco"],
+        "Nuevo León":["Monterrey","San Pedro Garza García","Guadalupe","Apodaca"]
       }
     };
-
-    // Año en footer
-    $$('#yy').textContent = new Date().getFullYear();
-
-    // ==== CATÁLOGOS ====
-    const CATALOGOS = { estados:["Aguascalientes","Baja California","Baja California Sur","Campeche","Chiapas","Chihuahua","Ciudad de México","Coahuila","Colima","Durango","Guanajuato","Guerrero","Hidalgo","Jalisco","México","Michoacán","Morelos","Nayarit","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","San Luis Potosí","Sinaloa","Sonora","Tabasco","Tamaulipas","Tlaxcala","Veracruz","Yucatán","Zacatecas"], ciudades:{
-      "Ciudad de México":["Álvaro Obregón","Azcapotzalco","Benito Juárez","Coyoacán","Cuajimalpa","Cuauhtémoc","Gustavo A. Madero","Iztacalco","Iztapalapa","La Magdalena Contreras","Miguel Hidalgo","Milpa Alta","Tláhuac","Tlalpan","Venustiano Carranza","Xochimilco"],
-      "México":["Ecatepec","Naucalpan","Tlalnepantla","Atizapán de Zaragoza","Toluca","Metepec","Cuautitlán Izcalli"],
-      "Jalisco":["Guadalajara","Zapopan","Tlaquepaque","Tlajomulco"],
-      "Nuevo León":["Monterrey","San Pedro Garza García","Guadalupe","Apodaca"]
-    } };
     (async function(){
       try{
-        const r = await fetch('municipios-live.js');
-        if(r.ok){ const data = await r.json(); if(Array.isArray(data.estados)) CATALOGOS.estados = data.estados; if(data.ciudades) CATALOGOS.ciudades = data.ciudades; }
+        const r = await fetch('municipios-mx.json');
+        if(r.ok){ const data = await r.json();
+          if(Array.isArray(data.estados)) CATALOGOS.estados = data.estados;
+          if(data.ciudades) CATALOGOS.ciudades = data.ciudades;
+        }
       }catch(e){}
       poblarEstados(); poblarCiudades();
     })();
 
     const elQ=$$('#q'), elTipo=$$('#tipo'), elEstado=$$('#estado'), elCiudad=$$('#ciudad'), elMin=$$('#min'), elMax=$$('#max'), elCards=$$('#cards');
 
-    function poblarEstados(){ elEstado.innerHTML = '<option value="">Estado</option>' + CATALOGOS.estados.map(e=>`<option>${e}</option>`).join(''); }
-    function poblarCiudades(){ const est=elEstado.value; let ciudades=[]; if(est){ ciudades=CATALOGOS.ciudades[est]||[]; } else { const set=new Set(); Object.values(CATALOGOS.ciudades).flat().forEach(c=>set.add(c)); ciudades=[...set]; } elCiudad.innerHTML = '<option value="">Ciudad / Municipio</option>' + ciudades.sort().map(c=>`<option>${c}</option>`).join(''); }
-    elEstado.addEventListener('change', poblarCiudades);
+    function poblarEstados(){ if(!elEstado) return; elEstado.innerHTML = '<option value="">Estado</option>' + CATALOGOS.estados.map(e=>`<option>${e}</option>`).join(''); }
+    function poblarCiudades(){ if(!elCiudad) return; const est=elEstado.value; let ciudades=[]; if(est){ ciudades=CATALOGOS.ciudades[est]||[]; } else { const set=new Set(); Object.values(CATALOGOS.ciudades).flat().forEach(c=>set.add(c)); ciudades=[...set]; } elCiudad.innerHTML = '<option value="">Ciudad / Municipio</option>' + ciudades.sort().map(c=>`<option>${c}</option>`).join(''); }
+    if(elEstado) elEstado.addEventListener('change', poblarCiudades);
 
-    // ==== INVENTARIO (sólo remoto) ====
+    // ==== INVENTARIO (solo reales) ====
     let INVENTARIO = [];
-    const LS_KEY = 'meroci:props';
-    try{ localStorage.removeItem(LS_KEY); }catch(e){}
-    // <- no-op para compatibilidad con llamadas existentes
-    function persistOnlyCustom(){ /* sin uso; compatibilidad UI */ }
+    const LS_KEY='meroci:props';
+    try{ const fromLS=JSON.parse(localStorage.getItem(LS_KEY)||'[]'); if(Array.isArray(fromLS)) INVENTARIO=[...fromLS]; }catch(e){}
+
+    const RemoteStore = {
+      enabled: ()=> !!sb,
+      async list(){
+        if(!sb) return [];
+        const { data, error } = await sb.from('properties').select('*').order('created_at', { ascending:false });
+        if(error){ console.warn('Supabase list error', error); return []; }
+        return Array.isArray(data)? data : [];
+      },
+      async insert(obj){
+        if(!sb) return { error: { message:'Supabase no disponible' } };
+        // NO enviar id: dejamos que el default de la tabla lo genere
+        const { data, error } = await sb.from('properties').insert(obj).select().single();
+        return { data, error };
+      },
+      async update(id, obj){
+        if(!sb) return { error: { message:'Supabase no disponible' } };
+        const { data, error } = await sb.from('properties').update(obj).eq('id', id).select().single();
+        return { data, error };
+      },
+      async remove(id){
+        if(!sb) return;
+        const { error } = await sb.from('properties').delete().eq('id', id);
+        if(error) console.warn('Supabase delete error', error);
+      }
+    };
 
     async function syncFromRemote(){
       if(!RemoteStore.enabled()) return;
       const remote = await RemoteStore.list();
-      INVENTARIO = Array.isArray(remote) ? remote : [];
+      if(remote.length){
+        INVENTARIO = remote;
+      }
     }
 
     // ==== LISTADO ====
     function render(list){
+      if(!elCards) return;
       elCards.innerHTML='';
-      if(!list.length){ elCards.innerHTML='<div class="svc" style="grid-column:1/-1;text-align:center">Sin resultados. Ajusta filtros o <a href="#contacto">contáctanos</a>.</div>'; return; }
+      if(!list.length){
+        elCards.innerHTML='<div class="svc" style="grid-column:1/-1;text-align:center">Aún no hay propiedades publicadas. <a href="#contacto">Contáctanos</a>.</div>';
+        return;
+      }
       list.forEach(p=>{
         const card=document.createElement('article'); card.className='card';
         const videoBadge = p.video? '<div class="chip">🎬 Video</div>' : '';
-        card.innerHTML=`<div class="thumb"><img src="${p.img}" alt="${p.titulo}"><div class="chip">${p.tipo}</div>${videoBadge}</div>
-          <div class="card-body"><div class="price">${money(p.precio)}</div><div style="font-weight:700">${p.titulo}</div>
-          <div class="meta">${p.ciudad} • ${p.colonia} • ${p.m2} m² • ${p.rec} rec • ${p.ban} baño(s)</div></div>
-          <div class="card-actions"><button class="btn primary" data-open="${p.id}">Ver detalles</button>
-          <a class="btn ghost" href="https://wa.me/525530297418?text=Hola%20MEROCI,%20quiero%20información%20sobre:%20${encodeURIComponent(p.titulo)}" target="_blank" rel="noopener">WhatsApp</a></div>`;
+        card.innerHTML = `
+          <div class="thumb">
+            <img src="${p.img}" alt="${p.titulo}">
+            <div class="chip">${p.tipo||p.type||'Propiedad'}</div>${videoBadge}
+          </div>
+          <div class="card-body">
+            <div class="price">${money(p.precio)}</div>
+            <div style="font-weight:700">${p.titulo}</div>
+            <div class="meta">${p.ciudad||''} • ${p.colonia||''} • ${p.m2||0} m² • ${p.rec||0} rec • ${p.ban||0} baño(s)</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn primary" data-open="${p.id}">Ver detalles</button>
+            <a class="btn ghost" href="https://wa.me/525530297418?text=Hola%20MEROCI,%20quiero%20información%20sobre:%20${encodeURIComponent(p.titulo)}" target="_blank" rel="noopener">WhatsApp</a>
+          </div>`;
         elCards.appendChild(card);
       });
     }
+
     function applyFilters(){
-      const q=(elQ.value||'').toLowerCase(), tipo=elTipo.value, estado=elEstado.value, ciudad=elCiudad.value;
-      const min=parseInt(elMin.value||0,10), max=parseInt(elMax.value||1e12,10);
+      const q=(elQ?.value||'').toLowerCase(), tipo=elTipo?.value, estado=elEstado?.value, ciudad=elCiudad?.value;
+      const min=parseInt(elMin?.value||0,10), max=parseInt(elMax?.value||1e12,10);
       const list = INVENTARIO.filter(p=>p.destacado!==false).filter(p=>{
         const matchQ=[p.titulo,p.colonia,p.ciudad,p.tipo].join(' ').toLowerCase().includes(q);
-        const matchTipo=!tipo||p.tipo===tipo; const matchEstado=!estado||p.estado===estado; const matchCiudad=!ciudad||p.ciudad===ciudad; const matchPrecio=p.precio>=min&&p.precio<=max; return matchQ&&matchTipo&&matchEstado&&matchCiudad&&matchPrecio; });
+        const matchTipo=!tipo||p.tipo===tipo;
+        const matchEstado=!estado||p.estado===estado;
+        const matchCiudad=!ciudad||p.ciudad===ciudad;
+        const matchPrecio=Number(p.precio)>=min && Number(p.precio)<=max;
+        return matchQ&&matchTipo&&matchEstado&&matchCiudad&&matchPrecio;
+      });
       render(list);
     }
-    [elQ,elTipo,elEstado,elCiudad,elMin,elMax].forEach(el=> el.addEventListener('input', applyFilters));
+    [elQ,elTipo,elEstado,elCiudad,elMin,elMax].forEach(el=> el && el.addEventListener('input', applyFilters));
 
-    // ==== MODAL DE PROPIEDAD ====
+    // ==== MODAL ====
     const modal=$$('#modal'), mImg=$$('#m-img'), mVideo=$$('#m-video');
-    function openModal(id){ const p=INVENTARIO.find(x=>x.id===id); if(!p) return; $$('#m-title').textContent=p.titulo; mImg.src=p.img; mImg.style.display=p.video?'none':'block'; mVideo.src=p.video||''; mVideo.style.display=p.video?'block':'none'; $$('#m-price').textContent=money(p.precio); $$('#m-meta').textContent=`${p.ciudad} • ${p.colonia} • ${p.m2} m² • ${p.rec} rec • ${p.ban} baño(s)`; $$('#m-desc').textContent=p.desc||''; const whatsVisita=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero agendar visita para: '+p.titulo)}`; const whatsInfo=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero más información de: '+p.titulo)}`; $$('#m-whats').href=whatsVisita; const more=$$('#m-more'); more.href=whatsInfo; const mi24=$$('#m-i24'); if(p.i24){ mi24.style.display='inline-flex'; mi24.href=p.i24; } else { mi24.style.display='none'; mi24.removeAttribute('href'); }
-      const tags=$$('#m-tags'); tags.innerHTML=''; ['Estado: '+(p.estado||''),'Ubicación: '+p.ciudad,'Tipo: '+p.tipo, p.m2+' m²'].forEach(t=>{ const b=document.createElement('span'); b.className='chip'; b.textContent=t; tags.appendChild(b); }); modal.showModal(); }
+    function openModal(id){
+      const p=INVENTARIO.find(x=>x.id===id);
+      if(!p) return;
+      $$('#m-title').textContent=p.titulo;
+      mImg.src=p.img; mImg.style.display=p.video?'none':'block';
+      mVideo.src=p.video||''; mVideo.style.display=p.video?'block':'none';
+      $$('#m-price').textContent=money(p.precio);
+      $$('#m-meta').textContent=`${p.ciudad||''} • ${p.colonia||''} • ${p.m2||0} m² • ${p.rec||0} rec • ${p.ban||0} baño(s)`;
+      $$('#m-desc').textContent=p.desc||'';
+      const whatsVisita=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero agendar visita para: '+p.titulo)}`;
+      const whatsInfo=`https://wa.me/525530297418?text=${encodeURIComponent('Hola MEROCI, quiero más información de: '+p.titulo)}`;
+      $$('#m-whats').href=whatsVisita; $$('#m-more').href=whatsInfo;
+      const mi24=$$('#m-i24'); if(p.i24){ mi24.style.display='inline-flex'; mi24.href=p.i24; } else { mi24.style.display='none'; mi24.removeAttribute('href'); }
+      const tags=$$('#m-tags'); tags.innerHTML='';
+      ['Estado: '+(p.estado||''),'Ubicación: '+(p.ciudad||''),'Tipo: '+(p.tipo||''), (p.m2||0)+' m²'].forEach(t=>{ const b=document.createElement('span'); b.className='chip'; b.textContent=t; tags.appendChild(b); });
+      modal.showModal();
+    }
     function closeModal(){ modal.close(); }
     window.openModal=openModal; window.closeModal=closeModal;
 
     // ==== ADMIN ====
     const ADMIN_PASS='meroci2025';
     const adminDlg=$$('#admin');
-    $$('#btn-admin').addEventListener('click',(e)=>{ e.preventDefault(); adminDlg.showModal(); });
-    $$('#admin-login-btn').addEventListener('click',()=>{ const pass=$$('#admin-pass').value; if(pass===ADMIN_PASS){ $$('#admin-login').style.display='none'; $$('#admin-app').style.display='block'; renderTabla(); fillCatalogosForm(); } else { alert('Contraseña incorrecta'); } });
-    $$('#admin-logout-btn').addEventListener('click',()=>{ $$('#admin-app').style.display='none'; $$('#admin-login').style.display='block'; $$('#admin-pass').value=''; });
+    $$('#btn-admin')?.addEventListener('click',(e)=>{ e.preventDefault(); adminDlg.showModal(); });
+    $$('#admin-login-btn')?.addEventListener('click',()=>{
+      const pass=$$('#admin-pass').value;
+      if(pass===ADMIN_PASS){ $$('#admin-login').style.display='none'; $$('#admin-app').style.display='block'; renderTabla(); fillCatalogosForm(); }
+      else { alert('Contraseña incorrecta'); }
+    });
+    $$('#admin-logout-btn')?.addEventListener('click',()=>{ $$('#admin-app').style.display='none'; $$('#admin-login').style.display='block'; $$('#admin-pass').value=''; });
 
     const tbody=$$('#tabla tbody');
     const f = { id: $$('#f-id'), titulo: $$('#f-titulo'), tipo: $$('#f-tipo'), estado: $$('#f-estado'), ciudad: $$('#f-ciudad'), colonia: $$('#f-colonia'), precio: $$('#f-precio'), m2: $$('#f-m2'), rec: $$('#f-rec'), ban: $$('#f-ban'), est: $$('#f-est'), img: $$('#f-img'), video: $$('#f-video'), i24: $$('#f-i24'), desc: $$('#f-desc'), destacado: $$('#f-destacado') };
 
-    function fillCatalogosForm(){ if(!f.estado || !f.ciudad) return; f.estado.innerHTML=CATALOGOS.estados.map(e=>`<option>${e}</option>`).join(''); f.estado.onchange=()=>{ const cs=CATALOGOS.ciudades[f.estado.value]||[]; f.ciudad.innerHTML=cs.map(c=>`<option>${c}</option>`).join(''); }; f.estado.value='Ciudad de México'; f.estado.dispatchEvent(new Event('change')); f.ciudad.value='Cuauhtémoc'; }
+    function fillCatalogosForm(){
+      if(!f.estado || !f.ciudad) return;
+      f.estado.innerHTML=CATALOGOS.estados.map(e=>`<option>${e}</option>`).join('');
+      f.estado.onchange=()=>{ const cs=CATALOGOS.ciudades[f.estado.value]||[]; f.ciudad.innerHTML=cs.map(c=>`<option>${c}</option>`).join(''); };
+      f.estado.value='Ciudad de México';
+      f.estado.dispatchEvent(new Event('change'));
+      f.ciudad.value='Cuauhtémoc';
+    }
 
-    function mostrarForm(data){ $$('#admin-form').style.display='block'; $$('#form-title').textContent=data?'Editar propiedad':'Nueva propiedad'; editId=data?data.id:null; f.id.value=data?data.id:''; f.titulo.value=data?data.titulo:''; f.tipo.value=data?data.tipo:'Casa'; f.estado.value=data?data.estado:'Ciudad de México'; f.estado.dispatchEvent(new Event('change')); f.ciudad.value=data?data.ciudad:'Cuauhtémoc'; f.colonia.value=data?data.colonia:''; f.precio.value=data?data.precio:''; f.m2.value=data?data.m2:''; f.rec.value=data?data.rec:''; f.ban.value=data?data.ban:''; f.est.value=data?data.est:''; f.img.value=data?data.img:''; f.video.value=data?data.video:''; f.i24.value=data?(data.i24||''):''; f.desc.value=data?data.desc:''; f.destacado.checked=data?!!data.destacado:true; }
+    function mostrarForm(data){
+      $$('#admin-form').style.display='block';
+      $$('#form-title').textContent=data?'Editar propiedad':'Nueva propiedad';
+      editId=data?data.id:null;
+      f.id.value=data?data.id:''; f.titulo.value=data?data.titulo:''; f.tipo.value=data?data.tipo:'Casa';
+      f.estado.value=data?data.estado:'Ciudad de México'; f.estado.dispatchEvent(new Event('change'));
+      f.ciudad.value=data?data.ciudad:'Cuauhtémoc'; f.colonia.value=data?data.colonia:'';
+      f.precio.value=data?data.precio:''; f.m2.value=data?data.m2:''; f.rec.value=data?data.rec:''; f.ban.value=data?data.ban:''; f.est.value=data?data.est:'';
+      f.img.value=data?data.img:''; f.video.value=data?data.video:''; f.i24.value=data?(data.i24||''):'';
+      f.desc.value=data?data.desc:''; f.destacado.checked=data?!!data.destacado:true;
+    }
     function ocultarForm(){ $$('#admin-form').style.display='none'; editId=null; }
 
-    function renderTabla(){ tbody.innerHTML=''; INVENTARIO.forEach(p=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${p.titulo}</td><td style="border-bottom:1px solid #eee">${p.tipo}</td><td style="border-bottom:1px solid #eee">${p.estado||''} / ${p.ciudad||''} / ${p.colonia||''}</td><td style="border-bottom:1px solid #eee">${money(p.precio)}</td><td style="border-bottom:1px solid #eee">${p.destacado?'Sí':'No'}</td><td style="border-bottom:1px solid #eee"><button class="btn ghost" data-editar="${p.id}">Editar</button> <button class="btn primary" data-eliminar="${p.id}">Eliminar</button></td>`; tbody.appendChild(tr); }); $$$('[data-editar]',tbody).forEach(b=> b.addEventListener('click',()=>{ const p=INVENTARIO.find(x=>x.id===b.getAttribute('data-editar')); mostrarForm(p); })); $$$('[data-eliminar]',tbody).forEach(b=> b.addEventListener('click',async ()=>{ const id=b.getAttribute('data-eliminar'); if(confirm('¿Eliminar esta propiedad?')){ INVENTARIO=INVENTARIO.filter(p=>p.id!==id); persistOnlyCustom(); if(RemoteStore.enabled()) await RemoteStore.remove(id); renderTabla(); applyFilters(); } })); }
+    function renderTabla(){
+      if(!tbody) return;
+      tbody.innerHTML='';
+      INVENTARIO.forEach(p=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td style="padding:8px;border-bottom:1px solid #eee">${p.titulo}</td>
+          <td style="border-bottom:1px solid #eee">${p.tipo}</td>
+          <td style="border-bottom:1px solid #eee">${p.estado||''} / ${p.ciudad||''} / ${p.colonia||''}</td>
+          <td style="border-bottom:1px solid #eee">${money(p.precio)}</td>
+          <td style="border-bottom:1px solid #eee">${p.destacado?'Sí':'No'}</td>
+          <td style="border-bottom:1px solid #eee">
+            <button class="btn ghost" data-editar="${p.id}">Editar</button>
+            <button class="btn primary" data-eliminar="${p.id}">Eliminar</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      $$$('[data-editar]',tbody).forEach(b=> b.addEventListener('click',()=>{ const p=INVENTARIO.find(x=>x.id===b.getAttribute('data-editar')); mostrarForm(p); }));
+      $$$('[data-eliminar]',tbody).forEach(b=> b.addEventListener('click',async ()=>{
+        const id=b.getAttribute('data-eliminar');
+        if(confirm('¿Eliminar esta propiedad?')){
+          INVENTARIO=INVENTARIO.filter(p=>p.id!==id);
+          localStorage.setItem(LS_KEY, JSON.stringify(INVENTARIO));
+          if(RemoteStore.enabled()) await RemoteStore.remove(id);
+          renderTabla(); applyFilters();
+        }
+      }));
+    }
 
     let editId=null;
-    $$('#nuevo-btn').addEventListener('click',()=> mostrarForm());
-    $$('#cancelar-prop').addEventListener('click',()=> ocultarForm());
-    // <<< FIJADO: usar $$ (no jQuery) y mantener compatibilidad
-    $$('#guardar-prop').addEventListener('click', async ()=>{
-      const obj = {
-        id: editId || null,
-        titulo: f.titulo.value,
+    $$('#nuevo-btn')?.addEventListener('click',()=> mostrarForm());
+    $$('#cancelar-prop')?.addEventListener('click',()=> ocultarForm());
+
+    // ====== FIX: Guardar (insert/update sin mandar id vacío) ======
+    $$('#guardar-prop')?.addEventListener('click',async ()=>{
+      const base = {
+        titulo: (f.titulo.value||'').trim(),
         tipo: f.tipo.value,
         estado: f.estado.value,
         ciudad: f.ciudad.value,
-        colonia: f.colonia.value,
-        precio: Number(f.precio.value || 0),
-        m2: Number(f.m2.value || 0),
-        rec: Number(f.rec.value || 0),
-        ban: Number(f.ban.value || 0),
-        est: Number(f.est.value || 0),
-        img: f.img.value,
-        video: f.video.value,
-        i24: f.i24.value,
-        desc: f.desc.value,
+        colonia: (f.colonia.value||'').trim(),
+        precio: Number(f.precio.value||0),
+        m2: Number(f.m2.value||0),
+        rec: Number(f.rec.value||0),
+        ban: Number(f.ban.value||0),
+        est: Number(f.est.value||0),
+        img: (f.img.value||'').trim(),
+        video: (f.video.value||'').trim(),
+        i24: (f.i24.value||'').trim(),
+        desc: (f.desc.value||'').trim(),
         destacado: !!f.destacado.checked
       };
-
-      if(!obj.titulo || !obj.img){
+      if(!base.titulo || !base.img){
         alert('Título e imagen son obligatorios');
         return;
       }
 
       try{
-        if(RemoteStore.enabled()) await RemoteStore.upsert(obj);
-
+        let res;
         if(editId){
-          INVENTARIO = INVENTARIO.map(p => p.id === editId ? obj : p);
-        } else {
-          obj.id ||= 'tmp-' + Date.now();
-          INVENTARIO.unshift(obj);
+          res = await RemoteStore.update(editId, base);
+        }else{
+          // Alta nueva: NO enviar id -> deja que Postgres genere el uuid
+          res = await RemoteStore.insert(base);
         }
-        persistOnlyCustom();
-        ocultarForm(); renderTabla(); poblarCiudades(); applyFilters();
-        alert('Propiedad guardada');
+
+        if(res.error){
+          console.warn('Supabase upsert error:', res.error);
+          alert('No se pudo guardar en Supabase. Revisa consola/RLS/policies.');
+          return;
+        }
+
+        const saved = res.data;
+        // Actualizamos el inventario local con lo que viene de la DB (id incluido)
+        if(editId){
+          INVENTARIO = INVENTARIO.map(p=> p.id===editId? saved : p);
+        }else{
+          INVENTARIO.unshift(saved);
+        }
+        localStorage.setItem(LS_KEY, JSON.stringify(INVENTARIO));
+        ocultarForm(); renderTabla(); applyFilters();
+
       }catch(err){
-        console.error(err);
-        alert('No se pudo guardar en Supabase. Revisa consola/RLS/policies.');
+        console.warn(err);
+        alert('Error inesperado al guardar.');
       }
     });
 
@@ -516,10 +589,8 @@
     (function(){
       const form = $$('#contactForm');
       if(!form) return;
-
       const okMsg  = $$('#contactOk');
       const errMsg = $$('#contactErr');
-
       function show(el){ if(el) el.style.display='block'; }
       function hide(el){ if(el) el.style.display='none'; }
 
@@ -528,47 +599,31 @@
         hide(okMsg); hide(errMsg);
 
         const fd = new FormData(form);
-        const name   = (fd.get('name')    || fd.get('nombre')   || '').toString().trim();
-        const email  = (fd.get('email')   || ''                 ).toString().trim();
-        const phone  = (fd.get('phone')   || fd.get('telefono') || '').toString().trim();
-        const message= (fd.get('message') || fd.get('mensaje')  || '').toString().trim();
-        const interes= (fd.get('interes') || '').toString().trim();
-        const zona   = (fd.get('zona')    || '').toString().trim();
-        const presupuesto = (fd.get('presupuesto') || '').toString().trim();
+        const name   = (fd.get('name')||fd.get('nombre')||'').toString().trim();
+        const email  = (fd.get('email')||'').toString().trim();
+        const phone  = (fd.get('phone')||fd.get('telefono')||'').toString().trim();
+        const message= (fd.get('message')||fd.get('mensaje')||'').toString().trim();
+        const interes= (fd.get('interes')||'').toString().trim();
+        const zona   = (fd.get('zona')||'').toString().trim();
+        const presupuesto = (fd.get('presupuesto')||'').toString().trim();
 
-        const fullMessage = [
-          message,
-          interes && `Interés: ${interes}`,
-          zona && `Zona: ${zona}`,
-          presupuesto && `Presupuesto: ${presupuesto}`
-        ].filter(Boolean).join('\n');
+        const fullMessage = [message, interes && `Interés: ${interes}`, zona && `Zona: ${zona}`, presupuesto && `Presupuesto: ${presupuesto}`].filter(Boolean).join('\n');
 
         const btn = form.querySelector('button[type="submit"]');
         const prev = btn?.textContent;
         if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
 
         async function fallbackMailto(){
-          const params = encodeURIComponent(
-            `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`
-          );
-          window.location.href =
-            `mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`;
+          const params = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`);
+          window.location.href = `mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`;
         }
 
         try {
           if(sb){
-            const { error } = await sb.from('contacts')
-              .insert({ name, email, phone, message: fullMessage, source: 'web' }, { returning: 'minimal' });
-
-            console.log('contacts.insert ->', { ok: !error, error });
-            if(error){
-              show(errMsg);
-              await fallbackMailto();
-            }else{
-              hide(errMsg);
-              show(okMsg);
-              form.reset();
-            }
+            const { data, error } = await sb.from('contacts').insert({ name, email, phone, message: fullMessage, source: 'web' }).select().single();
+            console.log('contacts.insert ->', { data, error });
+            if(error){ show(errMsg); await fallbackMailto(); }
+            else{ show(okMsg); form.reset(); }
           }else{
             await fallbackMailto();
           }
@@ -581,8 +636,8 @@
         }
       });
     })();
-    
-    // ==== TESTIMONIOS (7 items) ====
+
+    // ==== TESTIMONIOS ====
     const REVIEWS = [
       {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
       {name:'Javier & Sofía', city:'Guadalajara, Jal.', type:'Compra', stars:5, text:'Claudia entendió nuestro presupuesto y zona. Cerramos en dos semanas.'},
@@ -594,83 +649,35 @@
     ];
     function starHTML(n){ return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
     function renderReviews(){
-      const track = document.querySelector('#reviews-track');
-      if(!track) return;
-      track.innerHTML = '';
-      (REVIEWS || []).forEach(r=>{
-        const el = document.createElement('article');
-        el.className = 'review';
-        const ini = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-        el.innerHTML = `
-          <div class="rev-head">
-            <div class="rev-avatar">${ini}</div>
-            <div>
-              <div class="rev-name">${r.name}</div>
-              <div class="rev-sub">${r.city} • ${r.type}</div>
-              <div class="rev-stars" aria-label="${r.stars} de 5">${starHTML(r.stars)}</div>
-            </div>
+      const track=$$('#reviews-track'); if(!track) return;
+      track.innerHTML='';
+      REVIEWS.forEach(r=>{
+        const el=document.createElement('article');
+        el.className='review';
+        const ini=r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        el.innerHTML=`<div class="rev-head">
+          <div class="rev-avatar">${ini}</div>
+          <div>
+            <div class="rev-name">${r.name}</div>
+            <div class="rev-sub">${r.city} • ${r.type}</div>
+            <div class="rev-stars" aria-label="${r.stars} de 5">${starHTML(r.stars)}</div>
           </div>
-          <p class="rev-text">“${r.text}”</p>`;
+        </div>
+        <p class="rev-text">“${r.text}”</p>`;
         track.appendChild(el);
       });
       buildDots(); updateReviews();
     }
     let revIndex=0, timer;
     function perView(){ if(matchMedia('(max-width:640px)').matches) return 1; if(matchMedia('(max-width:1024px)').matches) return 2; return 3; }
-    function pages(){
-      const track = document.querySelector('#reviews-track');
-      const count = track ? track.children.length : 0;
-      return Math.max(1, Math.ceil(count / perView()));
-    }
+    function pages(){ const track=$$('#reviews-track'); return Math.max(1, Math.ceil(track.children.length / perView())); }
     function updateReviews(){
-      const track = document.querySelector('#reviews-track');
-      const card = track?.querySelector('.review');
-      if(card){
-        const w = card.getBoundingClientRect().width + 16;
-        track.style.transform = `translateX(${-revIndex*w*perView()}px)`;
-      }
-      const dots = Array.from(document.querySelectorAll('#reviews-dots button'));
-      dots.forEach((d,i)=> d.classList.toggle('active', i===revIndex));
-      clearInterval(timer);
-      timer = setInterval(()=>{ revIndex=(revIndex+1)%pages(); updateReviews(); }, 5000);
+      const track=$$('#reviews-track'); const card=track.querySelector('.review');
+      if(card){ const w=card.getBoundingClientRect().width+16; track.style.transform=`translateX(${-revIndex*w*perView()}px)`; }
+      const dots=$$$('#reviews-dots button'); dots.forEach((d,i)=> d.classList.toggle('active', i===revIndex));
+      clearInterval(timer); timer=setInterval(()=>{ revIndex=(revIndex+1)%pages(); updateReviews(); }, 5000);
     }
-    function buildDots(){
-      const dots = document.querySelector('#reviews-dots');
-      if(!dots) return;
-      dots.innerHTML = '';
-      const pg = pages();
-      for(let i=0;i<pg;i++){
-        const b = document.createElement('button');
-        if(i===0) b.classList.add('active');
-        b.addEventListener('click',()=>{ revIndex=i; updateReviews(); });
-        dots.appendChild(b);
-      }
-    }
-    document.addEventListener('click',(e)=>{
-      if(e.target.classList && e.target.classList.contains('rev-nav')){
-        revIndex = (revIndex + (e.target.classList.contains('next')?1:-1) + pages()) % pages();
-        updateReviews();
-      }
-    });
+    function buildDots(){ const dots=$$('#reviews-dots'); dots.innerHTML=''; const pg=pages(); for(let i=0;i<pg;i++){ const b=document.createElement('button'); if(i===0) b.classList.add('active'); b.addEventListener('click',()=>{ revIndex=i; updateReviews(); }); dots.appendChild(b); } }
+    document.addEventListener('click
 
-    // ==== INICIALIZACIÓN ====
-    async function init(){
-      await syncFromRemote();
-      render(INVENTARIO.filter(p=>p.destacado!==false));
-      applyFilters();
-      renderReviews();
-      document.body.addEventListener('click',(e)=>{
-        const btn=e.target.closest('[data-open]');
-        if(btn){ openModal(btn.getAttribute('data-open')); }
-      });
-    }
-
-    // <<< FIJADO: ahora sí llamamos init al cargar el DOM
-    document.addEventListener('DOMContentLoaded', init);
-
-    // ==== PRUEBAS RÁPIDAS (no invasivas) ====
-    (function selfTest(){ try{ console.assert(typeof RemoteStore.enabled==='function', 'RemoteStore OK'); console.assert(Array.isArray(REVIEWS) && REVIEWS.length===7, 'Reviews length OK'); console.assert(typeof CATALOGOS === 'object', 'Catálogos OK'); }catch(err){ console.warn('SelfTest:', err); } })();
-  </script>
-</body>
-</html>
 
