@@ -311,88 +311,89 @@
     let sb = null;
     try{ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } }catch(e){}
 
-    // ==== PERSISTENCIA REMOTA (campos en español) ====
-    const RemoteStore = {
-      enabled: ()=> !!sb,
+    <script>
+// ==== PERSISTENCIA REMOTA (campos en español) ====
+const RemoteStore = {
+  enabled: ()=> !!sb,
 
-      async list(){
-        if(!sb) return [];
-        const { data, error } = await sb
-          .from('properties')
-          .select('*')
-          .order('created_at', { ascending:false });
+  async list(){
+    if(!sb) return [];
+    const { data, error } = await sb
+      .from('properties')
+      .select('*')
+      .order('created_at', { ascending:false });
 
-        if (error) {
-          console.warn('Supabase list error', error);
-          return [];
-        }
-        return (Array.isArray(data) ? data : []).map(r => ({
-          id: r.id,
-          titulo: r.titulo ?? '',
-          desc: r.desc ?? '',
-          precio: Number(r.precio ?? 0),
-          tipo: r.tipo ?? '',
-          estado: r.estado ?? '',
-          ciudad: r.ciudad ?? '',
-          colonia: r.colonia ?? '',
-          m2: Number(r.m2 ?? 0),
-          rec: Number(r.rec ?? 0),
-          ban: Number(r.ban ?? 0),
-          est: Number(r.est ?? 0),
-          img: r.img ?? '',
-          video: r.video ?? '',
-          i24: r.i24 ?? '',
-          destacado: (r.destacado ?? true)
-        }));
-      },
+    if (error) {
+      console.warn('Supabase list error', error);
+      return [];
+    }
+    return (Array.isArray(data) ? data : []).map(r => ({
+      id: r.id,
+      titulo: r.titulo ?? '',
+      desc: r.desc ?? '',
+      precio: Number(r.precio ?? 0),
+      tipo: r.tipo ?? '',
+      estado: r.estado ?? '',
+      ciudad: r.ciudad ?? '',
+      colonia: r.colonia ?? '',
+      m2: Number(r.m2 ?? 0),
+      rec: Number(r.rec ?? 0),
+      ban: Number(r.ban ?? 0),
+      est: Number(r.est ?? 0),
+      img: r.img ?? '',
+      video: r.video ?? '',
+      i24: r.i24 ?? '',
+      destacado: (r.destacado ?? true)
+    }));
+  },
 
-      async upsert(obj){
-        if(!sb) return;
+  async upsert(obj){
+    if(!sb) return;
 
-        const row = {
-          id: obj.id || null, // se eliminará abajo si es nuevo
-          titulo: obj.titulo ?? null,
-          desc: obj.desc ?? null,
-          precio: obj.precio != null ? Number(obj.precio) : null,
-          tipo: obj.tipo ?? null,
-          estado: obj.estado ?? null,
-          ciudad: obj.ciudad ?? null,
-          colonia: obj.colonia ?? null,
-          m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
-          rec: obj.rec != null ? parseInt(obj.rec,10) : null,
-          ban: obj.ban != null ? parseInt(obj.ban,10) : null,
-          est: obj.est != null ? parseInt(obj.est,10) : null,
-          img: obj.img ?? null,
-          video: obj.video || null,
-          i24: obj.i24 || null,
-          destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
-        };
-
-        // ✅ FIX: no enviar id si es nuevo (deja que Supabase lo genere)
-        if (!row.id) delete row.id;
-
-        // ✅ devuelve la fila insertada o actualizada
-        const { data, error } = await sb
-          .from('properties')
-          .upsert(row)
-          .select()
-          .single();
-
-        if (error) {
-          console.error('Supabase upsert error:', error);
-          throw error;
-        }
-
-        // ✅ si era nuevo, actualiza el objeto local con el id generado
-        if (!obj.id && data?.id) obj.id = data.id;   
-     }
-
-      async remove(id){
-        if(!sb) return;
-        const { error } = await sb.from('properties').delete().eq('id', id);
-        if (error) { console.error('Supabase delete error:', error); throw error; }
-      }
+    const row = {
+      id: obj.id || null,                     // si es nuevo lo borramos abajo
+      titulo: obj.titulo ?? null,
+      desc: obj.desc ?? null,
+      precio: obj.precio != null ? Number(obj.precio) : null,
+      tipo: obj.tipo ?? null,
+      estado: obj.estado ?? null,
+      ciudad: obj.ciudad ?? null,
+      colonia: obj.colonia ?? null,
+      m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
+      rec: obj.rec != null ? parseInt(obj.rec,10) : null,
+      ban: obj.ban != null ? parseInt(obj.ban,10) : null,
+      est: obj.est != null ? parseInt(obj.est,10) : null,
+      img: obj.img ?? null,
+      video: obj.video || null,
+      i24: obj.i24 || null,
+      destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
     };
+
+    // ✅ si es nuevo, deja que Postgres genere el id
+    if (!row.id) delete row.id;
+
+    const { data, error } = await sb
+      .from('properties')
+      .upsert(row)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase upsert error:', error);
+      throw error;
+    }
+
+    // si era nuevo, trae de vuelta el id generado
+    if (!obj.id && data?.id) obj.id = data.id;
+  },
+
+  async remove(id){
+    if(!sb) return;
+    const { error } = await sb.from('properties').delete().eq('id', id);
+    if (error) { console.error('Supabase delete error:', error); throw error; }
+  }
+};
+</script>
 
     // Año en footer
     $$('#yy').textContent = new Date().getFullYear();
