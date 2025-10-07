@@ -306,90 +306,78 @@
     const money = v => '$' + Number(v||0).toLocaleString('es-MX') + ' MXN';
 
     // ==== CONFIG REMOTA (opcional) ====
-    // Rellena estas dos constantes para activar persistencia multi-dispositivo
-    // (crea un proyecto en supabase.com, tabla "propiedades" y pega aquí tus claves)
     const SUPABASE_URL = "https://juottsbieeotqxcqrwdc.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1b3R0c2JpZWVvdHF4Y3Fyd2RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg2NDI2MTIsImV4cCI6MjA3NDIxODYxMn0.GkopvVnztEo6TPFL7Kg6sOl4ezlEmdgWEU3SLgujxcQ";
     let sb = null;
     try{ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } }catch(e){}
 
-// ==== PERSISTENCIA REMOTA (campos en español) ====
-const RemoteStore = {
-  enabled: ()=> !!sb,
+    // ==== PERSISTENCIA REMOTA (campos en español) ====
+    const RemoteStore = {
+      enabled: ()=> !!sb,
 
-  async list(){
-    if(!sb) return [];
-    const { data, error } = await sb
-      .from('properties')
-      .select('*')
-      .order('created_at', { ascending:false });
+      async list(){
+        if(!sb) return [];
+        const { data, error } = await sb
+          .from('properties')
+          .select('*')
+          .order('created_at', { ascending:false });
 
-    if (error) {
-      console.warn('Supabase list error', error);
-      return [];
-    }
-    return (Array.isArray(data) ? data : []).map(r => ({
-      id: r.id,
-      titulo: r.titulo ?? '',
-      desc: r.desc ?? '',
-      precio: Number(r.precio ?? 0),
-      tipo: r.tipo ?? '',
-      estado: r.estado ?? '',
-      ciudad: r.ciudad ?? '',
-      colonia: r.colonia ?? '',
-      m2: Number(r.m2 ?? 0),
-      rec: Number(r.rec ?? 0),
-      ban: Number(r.ban ?? 0),
-      est: Number(r.est ?? 0),
-      img: r.img ?? '',
-      video: r.video ?? '',
-      i24: r.i24 ?? '',
-      destacado: (r.destacado ?? true)
-    }));
-  },
+        if (error) {
+          console.warn('Supabase list error', error);
+          return [];
+        }
+        return (Array.isArray(data) ? data : []).map(r => ({
+          id: r.id,
+          titulo: r.titulo ?? '',
+          desc: r.desc ?? '',
+          precio: Number(r.precio ?? 0),
+          tipo: r.tipo ?? '',
+          estado: r.estado ?? '',
+          ciudad: r.ciudad ?? '',
+          colonia: r.colonia ?? '',
+          m2: Number(r.m2 ?? 0),
+          rec: Number(r.rec ?? 0),
+          ban: Number(r.ban ?? 0),
+          est: Number(r.est ?? 0),
+          img: r.img ?? '',
+          video: r.video ?? '',
+          i24: r.i24 ?? '',
+          destacado: (r.destacado ?? true)
+        }));
+      },
 
-  async upsert(obj){
-    if(!sb) return;
+      async upsert(obj){
+        if(!sb) return;
 
-    const row = {
-      id: obj.id || null,  // si es null, Postgres genera UUID
-      titulo: obj.titulo ?? null,
-      desc: obj.desc ?? null,
-      precio: obj.precio != null ? Number(obj.precio) : null,
-      tipo: obj.tipo ?? null,
-      estado: obj.estado ?? null,
-      ciudad: obj.ciudad ?? null,
-      colonia: obj.colonia ?? null,
-      m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
-      rec: obj.rec != null ? parseInt(obj.rec,10) : null,
-      ban: obj.ban != null ? parseInt(obj.ban,10) : null,
-      est: obj.est != null ? parseInt(obj.est,10) : null,
-      img: obj.img ?? null,
-      video: obj.video || null,
-      i24: obj.i24 || null,
-      destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
-      // created_at: default now()
+        const row = {
+          id: obj.id || null,
+          titulo: obj.titulo ?? null,
+          desc: obj.desc ?? null,
+          precio: obj.precio != null ? Number(obj.precio) : null,
+          tipo: obj.tipo ?? null,
+          estado: obj.estado ?? null,
+          ciudad: obj.ciudad ?? null,
+          colonia: obj.colonia ?? null,
+          m2: obj.m2 != null ? parseInt(obj.m2,10) : null,
+          rec: obj.rec != null ? parseInt(obj.rec,10) : null,
+          ban: obj.ban != null ? parseInt(obj.ban,10) : null,
+          est: obj.est != null ? parseInt(obj.est,10) : null,
+          img: obj.img ?? null,
+          video: obj.video || null,
+          i24: obj.i24 || null,
+          destacado: typeof obj.destacado === 'boolean' ? obj.destacado : true
+        };
+
+        const { error } = await sb.from('properties').upsert(row, { onConflict:'id' });
+        if (error) { console.error('Supabase upsert error:', error); throw error; }
+      },
+
+      async remove(id){
+        if(!sb) return;
+        const { error } = await sb.from('properties').delete().eq('id', id);
+        if (error) { console.error('Supabase delete error:', error); throw error; }
+      }
     };
-
-    const { error } = await sb
-      .from('properties')
-      .upsert(row, { onConflict:'id' });
-
-    if (error) {
-      console.error('Supabase upsert error:', error);
-      throw error;
-    }
-  },
-
-  async remove(id){
-    if(!sb) return;
-    const { error } = await sb.from('properties').delete().eq('id', id);
-    if (error) {
-      console.error('Supabase delete error:', error);
-      throw error;
-    }
-  }
-};
 
     // Año en footer
     $$('#yy').textContent = new Date().getFullYear();
@@ -401,14 +389,12 @@ const RemoteStore = {
       "Jalisco":["Guadalajara","Zapopan","Tlaquepaque","Tlajomulco"],
       "Nuevo León":["Monterrey","San Pedro Garza García","Guadalupe","Apodaca"]
     } };
-    // Intentar cargar todos los municipios/alcaldías desde archivo opcional
     (async function(){
       try{
         const r = await fetch('municipios-live.js');
         if(r.ok){ const data = await r.json(); if(Array.isArray(data.estados)) CATALOGOS.estados = data.estados; if(data.ciudades) CATALOGOS.ciudades = data.ciudades; }
       }catch(e){}
       poblarEstados(); poblarCiudades();
-      // Nota: el formulario Admin rellena sus catálogos tras login
     })();
 
     const elQ=$$('#q'), elTipo=$$('#tipo'), elEstado=$$('#estado'), elCiudad=$$('#ciudad'), elMin=$$('#min'), elMax=$$('#max'), elCards=$$('#cards');
@@ -418,15 +404,17 @@ const RemoteStore = {
     elEstado.addEventListener('change', poblarCiudades);
 
     // ==== INVENTARIO (sólo remoto) ====
-let INVENTARIO = [];
-const LS_KEY = 'meroci:props'; // ya no se usa, lo limpiamos
-try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    let INVENTARIO = [];
+    const LS_KEY = 'meroci:props';
+    try{ localStorage.removeItem(LS_KEY); }catch(e){}
+    // <- no-op para compatibilidad con llamadas existentes
+    function persistOnlyCustom(){ /* sin uso; compatibilidad UI */ }
 
     async function syncFromRemote(){
-  if(!RemoteStore.enabled()) return;
-  const remote = await RemoteStore.list();
-  INVENTARIO = Array.isArray(remote) ? remote : [];
-}
+      if(!RemoteStore.enabled()) return;
+      const remote = await RemoteStore.list();
+      INVENTARIO = Array.isArray(remote) ? remote : [];
+    }
 
     // ==== LISTADO ====
     function render(list){
@@ -480,213 +468,209 @@ try{ localStorage.removeItem(LS_KEY); }catch(e){}
     let editId=null;
     $$('#nuevo-btn').addEventListener('click',()=> mostrarForm());
     $$('#cancelar-prop').addEventListener('click',()=> ocultarForm());
-    $('#guardar-prop').addEventListener('click', async ()=>{
-  const obj = {
-    id: editId || null,
-    titulo: f.titulo.value,
-    tipo: f.tipo.value,
-    estado: f.estado.value,
-    ciudad: f.ciudad.value,
-    colonia: f.colonia.value,
-    precio: Number(f.precio.value || 0),
-    m2: Number(f.m2.value || 0),
-    rec: Number(f.rec.value || 0),
-    ban: Number(f.ban.value || 0),
-    est: Number(f.est.value || 0),
-    img: f.img.value,
-    video: f.video.value,
-    i24: f.i24.value,
-    desc: f.desc.value,
-    destacado: !!f.destacado.checked
-  };
+    // <<< FIJADO: usar $$ (no jQuery) y mantener compatibilidad
+    $$('#guardar-prop').addEventListener('click', async ()=>{
+      const obj = {
+        id: editId || null,
+        titulo: f.titulo.value,
+        tipo: f.tipo.value,
+        estado: f.estado.value,
+        ciudad: f.ciudad.value,
+        colonia: f.colonia.value,
+        precio: Number(f.precio.value || 0),
+        m2: Number(f.m2.value || 0),
+        rec: Number(f.rec.value || 0),
+        ban: Number(f.ban.value || 0),
+        est: Number(f.est.value || 0),
+        img: f.img.value,
+        video: f.video.value,
+        i24: f.i24.value,
+        desc: f.desc.value,
+        destacado: !!f.destacado.checked
+      };
 
-  if(!obj.titulo || !obj.img){
-    alert('Título e imagen son obligatorios');
-    return;
-  }
+      if(!obj.titulo || !obj.img){
+        alert('Título e imagen son obligatorios');
+        return;
+      }
 
-  try{
-    if(RemoteStore.enabled()) await RemoteStore.upsert(obj);
+      try{
+        if(RemoteStore.enabled()) await RemoteStore.upsert(obj);
 
-    if(editId){
-      INVENTARIO = INVENTARIO.map(p => p.id === editId ? obj : p);
-    } else {
-      // Si DB generó id, al recargar vendrá correcto.
-      // Mientras tanto ponemos un id temporal para la UI.
-      obj.id ||= 'tmp-' + Date.now();
-      INVENTARIO.unshift(obj);
-    }
-    persistOnlyCustom();
-    ocultarForm(); renderTabla(); poblarCiudades(); applyFilters();
-    alert('Propiedad guardada');
-  }catch(err){
-    console.error(err);
-    alert('No se pudo guardar en Supabase. Revisa consola/RLS/policies.');
-  }
-});
+        if(editId){
+          INVENTARIO = INVENTARIO.map(p => p.id === editId ? obj : p);
+        } else {
+          obj.id ||= 'tmp-' + Date.now();
+          INVENTARIO.unshift(obj);
+        }
+        persistOnlyCustom();
+        ocultarForm(); renderTabla(); poblarCiudades(); applyFilters();
+        alert('Propiedad guardada');
+      }catch(err){
+        console.error(err);
+        alert('No se pudo guardar en Supabase. Revisa consola/RLS/policies.');
+      }
+    });
 
     // ==== FORM CONTACTO (Supabase + fallback) ====
-(function(){
-  // Tu formulario real tiene id="contactForm"
-  const form = $$('#contactForm');
-  if(!form) return;
+    (function(){
+      const form = $$('#contactForm');
+      if(!form) return;
 
-  const okMsg  = $$('#contactOk');
-  const errMsg = $$('#contactErr');
+      const okMsg  = $$('#contactOk');
+      const errMsg = $$('#contactErr');
 
-  function show(el){ if(el) el.style.display='block'; }
-  function hide(el){ if(el) el.style.display='none'; }
+      function show(el){ if(el) el.style.display='block'; }
+      function hide(el){ if(el) el.style.display='none'; }
 
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    hide(okMsg); hide(errMsg);
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        hide(okMsg); hide(errMsg);
 
-    const fd = new FormData(form);
-    // Lee ES o EN (lo que exista)
-    const name   = (fd.get('name')    || fd.get('nombre')   || '').toString().trim();
-    const email  = (fd.get('email')   || ''                 ).toString().trim();
-    const phone  = (fd.get('phone')   || fd.get('telefono') || '').toString().trim();
-    const message= (fd.get('message') || fd.get('mensaje')  || '').toString().trim();
-    const interes= (fd.get('interes') || '').toString().trim();
-    const zona   = (fd.get('zona')    || '').toString().trim();
-    const presupuesto = (fd.get('presupuesto') || '').toString().trim();
+        const fd = new FormData(form);
+        const name   = (fd.get('name')    || fd.get('nombre')   || '').toString().trim();
+        const email  = (fd.get('email')   || ''                 ).toString().trim();
+        const phone  = (fd.get('phone')   || fd.get('telefono') || '').toString().trim();
+        const message= (fd.get('message') || fd.get('mensaje')  || '').toString().trim();
+        const interes= (fd.get('interes') || '').toString().trim();
+        const zona   = (fd.get('zona')    || '').toString().trim();
+        const presupuesto = (fd.get('presupuesto') || '').toString().trim();
 
-    const fullMessage = [
-      message,
-      interes && `Interés: ${interes}`,
-      zona && `Zona: ${zona}`,
-      presupuesto && `Presupuesto: ${presupuesto}`
-    ].filter(Boolean).join('\n');
+        const fullMessage = [
+          message,
+          interes && `Interés: ${interes}`,
+          zona && `Zona: ${zona}`,
+          presupuesto && `Presupuesto: ${presupuesto}`
+        ].filter(Boolean).join('\n');
 
-    // Botón en estado "enviando"
-    const btn = form.querySelector('button[type="submit"]');
-    const prev = btn?.textContent;
-    if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
+        const btn = form.querySelector('button[type="submit"]');
+        const prev = btn?.textContent;
+        if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
 
-    async function fallbackMailto(){
-      const params = encodeURIComponent(
-        `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`
-      );
-      window.location.href =
-        `mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`;
-    }
+        async function fallbackMailto(){
+          const params = encodeURIComponent(
+            `Nombre: ${name}\nEmail: ${email}\nTeléfono: ${phone}\n${fullMessage}`
+          );
+          window.location.href =
+            `mailto:meroci1629@gmail.com?subject=Contacto%20desde%20web%20MEROCI&body=${params}`;
+        }
 
-    try {
-      if(sb){
-        const { error } = await sb.from('contacts')
-  .insert({ name, email, phone, message: fullMessage, source: 'web' }, { returning: 'minimal' });
+        try {
+          if(sb){
+            const { error } = await sb.from('contacts')
+              .insert({ name, email, phone, message: fullMessage, source: 'web' }, { returning: 'minimal' });
 
-        console.log('contacts.insert ->', { ok: !error, error });
-        if(error){
+            console.log('contacts.insert ->', { ok: !error, error });
+            if(error){
+              show(errMsg);
+              await fallbackMailto();
+            }else{
+              hide(errMsg);
+              show(okMsg);
+              form.reset();
+            }
+          }else{
+            await fallbackMailto();
+          }
+        } catch (err){
+          console.warn(err);
           show(errMsg);
           await fallbackMailto();
-     }else{
-       hide(errMsg);
-       show(okMsg);
-       form.reset();
-     }
-      }else{
-        await fallbackMailto();
-      }
-    } catch (err){
-      console.warn(err);
-      show(errMsg);
-      await fallbackMailto();
-    } finally {
-      if(btn){ btn.disabled = false; btn.textContent = prev || 'Enviar'; }
-    }
-  });
-})();
+        } finally {
+          if(btn){ btn.disabled = false; btn.textContent = prev || 'Enviar'; }
+        }
+      });
+    })();
     
     // ==== TESTIMONIOS (7 items) ====
-const REVIEWS = [
-  {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
-  {name:'Javier & Sofía', city:'Guadalajara, Jal.', type:'Compra', stars:5, text:'Claudia entendió nuestro presupuesto y zona. Cerramos en dos semanas.'},
-  {name:'Alejandra R.', city:'Polanco, CDMX', type:'Renta', stars:5, text:'Negoció mantenimiento y fechas flexibles. ¡Cero estrés!'},
-  {name:'Carlos M.', city:'San Pedro, NL', type:'Compra', stars:4, text:'Visitas coordinadas y pros/contras claros con Imelda.'},
-  {name:'Paola G.', city:'Toluca, Edo. Méx.', type:'Venta', stars:5, text:'Regularizaron papeles antes de publicar. Cierre sin contratiempos.'},
-  {name:'Patricia D.', city:'Benito Juárez, CDMX', type:'Renta', stars:5, text:'Solo visitas calificadas. Gracias, Claudia.'},
-  {name:'Esteban N.', city:'Querétaro, Qro.', type:'Compra', stars:5, text:'Imelda y Claudia nos guiaron a distancia hasta la firma.'}
-];
-
-function starHTML(n){ return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
-
-function renderReviews(){
-  const track = document.querySelector('#reviews-track');
-  if(!track) return;
-  track.innerHTML = '';
-  (REVIEWS || []).forEach(r=>{
-    const el = document.createElement('article');
-    el.className = 'review';
-    const ini = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    el.innerHTML = `
-      <div class="rev-head">
-        <div class="rev-avatar">${ini}</div>
-        <div>
-          <div class="rev-name">${r.name}</div>
-          <div class="rev-sub">${r.city} • ${r.type}</div>
-          <div class="rev-stars" aria-label="${r.stars} de 5">${starHTML(r.stars)}</div>
-        </div>
-      </div>
-      <p class="rev-text">“${r.text}”</p>`;
-    track.appendChild(el);
-  });
-  buildDots(); updateReviews();
-}
-
-let revIndex=0, timer;
-function perView(){ if(matchMedia('(max-width:640px)').matches) return 1; if(matchMedia('(max-width:1024px)').matches) return 2; return 3; }
-function pages(){
-  const track = document.querySelector('#reviews-track');
-  const count = track ? track.children.length : 0;
-  return Math.max(1, Math.ceil(count / perView()));
-}
-function updateReviews(){
-  const track = document.querySelector('#reviews-track');
-  const card = track?.querySelector('.review');
-  if(card){
-    const w = card.getBoundingClientRect().width + 16;
-    track.style.transform = `translateX(${-revIndex*w*perView()}px)`;
-  }
-  const dots = Array.from(document.querySelectorAll('#reviews-dots button'));
-  dots.forEach((d,i)=> d.classList.toggle('active', i===revIndex));
-  clearInterval(timer);
-  timer = setInterval(()=>{ revIndex=(revIndex+1)%pages(); updateReviews(); }, 5000);
-}
-function buildDots(){
-  const dots = document.querySelector('#reviews-dots');
-  if(!dots) return;
-  dots.innerHTML = '';
-  const pg = pages();
-  for(let i=0;i<pg;i++){
-    const b = document.createElement('button');
-    if(i===0) b.classList.add('active');
-    b.addEventListener('click',()=>{ revIndex=i; updateReviews(); });
-    dots.appendChild(b);
-  }
-}
-document.addEventListener('click',(e)=>{
-  if(e.target.classList && e.target.classList.contains('rev-nav')){
-    revIndex = (revIndex + (e.target.classList.contains('next')?1:-1) + pages()) % pages();
-    updateReviews();
-  }
-});
-
+    const REVIEWS = [
+      {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
+      {name:'Javier & Sofía', city:'Guadalajara, Jal.', type:'Compra', stars:5, text:'Claudia entendió nuestro presupuesto y zona. Cerramos en dos semanas.'},
+      {name:'Alejandra R.', city:'Polanco, CDMX', type:'Renta', stars:5, text:'Negoció mantenimiento y fechas flexibles. ¡Cero estrés!'},
+      {name:'Carlos M.', city:'San Pedro, NL', type:'Compra', stars:4, text:'Visitas coordinadas y pros/contras claros con Imelda.'},
+      {name:'Paola G.', city:'Toluca, Edo. Méx.', type:'Venta', stars:5, text:'Regularizaron papeles antes de publicar. Cierre sin contratiempos.'},
+      {name:'Patricia D.', city:'Benito Juárez, CDMX', type:'Renta', stars:5, text:'Solo visitas calificadas. Gracias, Claudia.'},
+      {name:'Esteban N.', city:'Querétaro, Qro.', type:'Compra', stars:5, text:'Imelda y Claudia nos guiaron a distancia hasta la firma.'}
+    ];
+    function starHTML(n){ return '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n); }
+    function renderReviews(){
+      const track = document.querySelector('#reviews-track');
+      if(!track) return;
+      track.innerHTML = '';
+      (REVIEWS || []).forEach(r=>{
+        const el = document.createElement('article');
+        el.className = 'review';
+        const ini = r.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        el.innerHTML = `
+          <div class="rev-head">
+            <div class="rev-avatar">${ini}</div>
+            <div>
+              <div class="rev-name">${r.name}</div>
+              <div class="rev-sub">${r.city} • ${r.type}</div>
+              <div class="rev-stars" aria-label="${r.stars} de 5">${starHTML(r.stars)}</div>
+            </div>
+          </div>
+          <p class="rev-text">“${r.text}”</p>`;
+        track.appendChild(el);
+      });
+      buildDots(); updateReviews();
+    }
+    let revIndex=0, timer;
+    function perView(){ if(matchMedia('(max-width:640px)').matches) return 1; if(matchMedia('(max-width:1024px)').matches) return 2; return 3; }
+    function pages(){
+      const track = document.querySelector('#reviews-track');
+      const count = track ? track.children.length : 0;
+      return Math.max(1, Math.ceil(count / perView()));
+    }
+    function updateReviews(){
+      const track = document.querySelector('#reviews-track');
+      const card = track?.querySelector('.review');
+      if(card){
+        const w = card.getBoundingClientRect().width + 16;
+        track.style.transform = `translateX(${-revIndex*w*perView()}px)`;
+      }
+      const dots = Array.from(document.querySelectorAll('#reviews-dots button'));
+      dots.forEach((d,i)=> d.classList.toggle('active', i===revIndex));
+      clearInterval(timer);
+      timer = setInterval(()=>{ revIndex=(revIndex+1)%pages(); updateReviews(); }, 5000);
+    }
+    function buildDots(){
+      const dots = document.querySelector('#reviews-dots');
+      if(!dots) return;
+      dots.innerHTML = '';
+      const pg = pages();
+      for(let i=0;i<pg;i++){
+        const b = document.createElement('button');
+        if(i===0) b.classList.add('active');
+        b.addEventListener('click',()=>{ revIndex=i; updateReviews(); });
+        dots.appendChild(b);
+      }
+    }
+    document.addEventListener('click',(e)=>{
+      if(e.target.classList && e.target.classList.contains('rev-nav')){
+        revIndex = (revIndex + (e.target.classList.contains('next')?1:-1) + pages()) % pages();
+        updateReviews();
+      }
+    });
 
     // ==== INICIALIZACIÓN ====
     async function init(){
-  await syncFromRemote(); // carga remota
-  render(INVENTARIO.filter(p=>p.destacado!==false));
-  applyFilters();
-  renderReviews();
-  document.body.addEventListener('click',(e)=>{
-    const btn=e.target.closest('[data-open]');
-    if(btn){ openModal(btn.getAttribute('data-open')); }
-  });
-}
+      await syncFromRemote();
+      render(INVENTARIO.filter(p=>p.destacado!==false));
+      applyFilters();
+      renderReviews();
+      document.body.addEventListener('click',(e)=>{
+        const btn=e.target.closest('[data-open]');
+        if(btn){ openModal(btn.getAttribute('data-open')); }
+      });
+    }
+
+    // <<< FIJADO: ahora sí llamamos init al cargar el DOM
+    document.addEventListener('DOMContentLoaded', init);
 
     // ==== PRUEBAS RÁPIDAS (no invasivas) ====
     (function selfTest(){ try{ console.assert(typeof RemoteStore.enabled==='function', 'RemoteStore OK'); console.assert(Array.isArray(REVIEWS) && REVIEWS.length===7, 'Reviews length OK'); console.assert(typeof CATALOGOS === 'object', 'Catálogos OK'); }catch(err){ console.warn('SelfTest:', err); } })();
   </script>
 </body>
 </html>
+
