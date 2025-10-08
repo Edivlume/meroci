@@ -90,7 +90,29 @@
     .svc{background:var(--card);padding:18px;border-radius:16px;box-shadow:var(--shadow)}
     .team{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:18px}
     .agent{display:flex;gap:14px;background:var(--card);padding:16px;border-radius:16px;box-shadow:var(--shadow);align-items:center}
-    .avatar{width:88px;height:88px;border-radius:20px;background:linear-gradient(135deg,var(--primary),var(--primary-600));color:#fff;display:grid;place-items:center;font-weight:900}
+    .a/* Avatares más grandes en todo el sitio */
+    .avatar{
+      width:96px;          /* antes 64px */
+      height:96px;         /* antes 64px */
+      border-radius:24px;  /* mantiene proporción del redondeo */
+      background:linear-gradient(135deg,var(--primary),var(--primary-600));
+      color:#fff;
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      font-size:48px;      /* hace más grandes los emojis y también las iniciales */
+      line-height:1;
+    }
+
+    /* Ajuste responsivo opcional (móviles) */
+    @media (max-width:640px){
+     .avatar{
+       width:72px;
+       height:72px;
+       border-radius:18px;
+       font-size:36px;
+     }
+    }
 
     /* FOOTER */
     footer{background:#0f1115;color:#e5e7eb}
