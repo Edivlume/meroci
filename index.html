@@ -155,6 +155,7 @@
 
     /* MODALES */
     dialog{
+      dialog[open]{ z-index:1000; }
       border:0;
       border-radius:18px;
       max-width:980px;
@@ -183,7 +184,7 @@
 
     .modal-body{
       display:grid;
-      grid-template-columns:1.1fr .9fr;
+      grid-template-columns:minmax(0, 1.1fr) minmax(0, .9fr);
       gap:16px;   /* separa foto y texto (evita que “se empalmen”) */
       padding:0 16px 16px;
       overflow:auto;                    /* 🔸 el scroll sucede aquí */
@@ -379,7 +380,7 @@
 
   <!-- Modal de propiedad -->
   <dialog id="modal">
-    <div class="modal-head"><strong id="m-title">Título</strong><button class="btn ghost" onclick="closeModal()">Cerrar</button></div>
+    <div class="modal-head"><strong id="m-title">Título</strong><button class="btn ghost" type="button" data-close-dialog>Cerrar</button>
     <div class="modal-body">
       <div class="col">
         <div class="gallery"><img id="m-img" alt=""><video id="m-video" controls style="display:none"></video></div>
@@ -400,7 +401,7 @@
 
   <!-- Panel de Administración -->
   <dialog id="admin">
-    <div class="modal-head"><strong>Administrador MEROCI</strong><button class="btn ghost" onclick="document.getElementById('admin').close()">Cerrar</button></div>
+    <div class="modal-head"><strong>Administrador MEROCI</strong><button class="btn ghost" type="button" data-close-dialog>Cerrar</button></div>
     <div class="modal-body" style="grid-template-columns:1fr">
       <div class="col">
         <div id="admin-login" class="svc" style="margin-bottom:14px"><h3 style="margin-top:0">Ingresar</h3><label class="field" style="margin-bottom:10px"><input id="admin-user" placeholder="Usuario" value="admin"></label><label class="field" style="margin-bottom:10px"><input id="admin-pass" type="password" placeholder="Contraseña"></label><button class="btn primary" id="admin-login-btn">Entrar</button><p style="color:var(--muted);margin-top:8px">* Seguridad del navegador. Únicamente acceso autorizado.</p></div>
@@ -873,7 +874,23 @@
     document.addEventListener('DOMContentLoaded', init);
 
     // ==== PRUEBAS RÁPIDAS (no invasivas) ====
-    (function selfTest(){ try{ console.assert(typeof RemoteStore.enabled==='function', 'RemoteStore OK'); console.assert(Array.isArray(REVIEWS) && REVIEWS.length===7, 'Reviews length OK'); console.assert(typeof CATALOGOS === 'object', 'Catálogos OK'); }catch(err){ console.warn('SelfTest:', err); } })();
+    (function selfTest(){ 
+      try{ 
+        console.assert(typeof RemoteStore.enabled==='function', 'RemoteStore OK'); 
+        console.assert(Array.isArray(REVIEWS) && REVIEWS.length===7, 'Reviews length OK'); 
+        console.assert(typeof CATALOGOS === 'object', 'Catálogos OK'); 
+      }catch(err){ 
+        console.warn('SelfTest:', err); 
+      } 
+    })();
+
+    // 🔸 Agrega esto justo antes de </script>
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-close-dialog]');
+      if (!btn) return;
+      const dlg = btn.closest('dialog');
+      if (dlg && typeof dlg.close === 'function') dlg.close();
+    });
   </script>
 </body>
 </html>
