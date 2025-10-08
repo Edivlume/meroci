@@ -90,19 +90,22 @@
     .svc{background:var(--card);padding:18px;border-radius:16px;box-shadow:var(--shadow)}
     .team{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:18px}
     .agent{display:flex;gap:14px;background:var(--card);padding:16px;border-radius:16px;box-shadow:var(--shadow);align-items:center}
-    .a/* Avatares más grandes en todo el sitio */
-    .avatar{
-      width:96px;          /* antes 64px */
-      height:96px;         /* antes 64px */
-      border-radius:24px;  /* mantiene proporción del redondeo */
-      background:linear-gradient(135deg,var(--primary),var(--primary-600));
-      color:#fff;
-      display:grid;
-      place-items:center;
-      font-weight:900;
-      font-size:48px;      /* hace más grandes los emojis y también las iniciales */
-      line-height:1;
-    }
+    /* Avatares más grandes en todo el sitio */
+    .avatar {
+      width: 96px;               /* Tamaño más grande */
+      height: 96px;
+      border-radius: 24px;       /* Mantiene esquinas suaves */
+      background: linear-gradient(135deg, var(--primary), var(--primary-600));
+      color: #fff;
+      display: flex;             /* Asegura que el fondo aparezca */
+      align-items: center;       /* Centra las letras verticalmente */
+      justify-content: center;   /* Centra las letras horizontalmente */
+      font-weight: 900;
+      font-size: 48px;           /* Hace más grandes las letras o emojis */
+      line-height: 1;
+      text-transform: uppercase; /* Asegura mayúsculas (opcional) */
+      flex-shrink: 0;            /* Evita que se comprima en flexbox */
+     }
 
     /* Ajuste responsivo opcional (móviles) */
     @media (max-width:640px){
@@ -703,7 +706,7 @@
       {name:'María L.', city:'Roma Norte, CDMX', type:'Venta', stars:5, text:'Imelda nos llevó de la mano en todo: valoración y notaría. Vendimos arriba de lo esperado.'},
       {name:'Javier & Sofía', city:'Guadalajara, Jal.', type:'Compra', stars:5, text:'Claudia entendió nuestro presupuesto y zona. Cerramos en dos semanas.'},
       {name:'Alejandra R.', city:'Polanco, CDMX', type:'Renta', stars:5, text:'Negoció mantenimiento y fechas flexibles. ¡Cero estrés!'},
-      {name:'Carlos M.', city:'San Pedro, NL', type:'Compra', stars:4, text:'Visitas coordinadas y pros/contras claros con Imelda.'},
+      {name:'Carlos M.', city:'Cuauhtémoc, CDMX', type:'Compra', stars:5, text:'Visitas coordinadas y pros/contras claros con Imelda.'},
       {name:'Paola G.', city:'Toluca, Edo. Méx.', type:'Venta', stars:5, text:'Regularizaron papeles antes de publicar. Cierre sin contratiempos.'},
       {name:'Patricia D.', city:'Benito Juárez, CDMX', type:'Renta', stars:5, text:'Solo visitas calificadas. Gracias, Claudia.'},
       {name:'Esteban N.', city:'Querétaro, Qro.', type:'Compra', stars:5, text:'Imelda y Claudia nos guiaron a distancia hasta la firma.'}
